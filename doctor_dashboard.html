@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html x-data="{ lang: 'fa' }" :lang="lang" :dir="lang === 'fa' ? 'rtl' : 'ltr'">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIVRAS - Doctor Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body{font-family:'IRANSans','Vazirmatn',sans-serif;background-color:#f8fafc;}
+        .glass{background:rgba(255,255,255,.75);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.5);}
+        [x-cloak]{display:none!important;}
+        .scrollbar-hide::-webkit-scrollbar{display:none;}
+        .scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none;}
+        @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(20,184,166,.45);}70%{box-shadow:0 0 0 12px rgba(20,184,166,0);}100%{box-shadow:0 0 0 0 rgba(20,184,166,0);}}
+        .pulse-ring{animation:pulseRing 2.2s infinite;}
+        .star{cursor:pointer;transition:transform .15s;}
+        .star:hover{transform:scale(1.2);}
+        .num{font-variant-numeric:tabular-nums;}
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen relative overflow-x-hidden">
+    <div class="fixed top-0 left-0 w-[600px] h-[600px] bg-teal-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0"></div>
+    <div class="fixed bottom-0 right-0 w-[600px] h-[600px] bg-blue-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 translate-x-1/2 translate-y-1/2 pointer-events-none z-0"></div>
+
+    <!-- Header -->
+    <header class="glass shadow-sm w-full sticky top-0 z-50 border-b border-white">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600 tracking-tight">SIVRAS</h1>
+                <div class="hidden md:block w-px h-6 bg-slate-300 mx-2"></div>
+                <span class="hidden md:inline-block text-sm font-bold text-slate-500">
+                    <span x-show="lang === 'fa'">پلتفرم جامع مدیریت نمایندگان علمی</span>
+                    <span x-show="lang === 'en'" x-cloak>Comprehensive Med-Rep Platform</span>
+                </span>
+            </div>
+            <nav class="flex gap-3 items-center">
+                <button @click="lang = lang === 'fa' ? 'en' : 'fa'" class="flex items-center gap-2 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 transition-colors px-4 py-2 rounded-xl border border-teal-200 shadow-sm">
+                    <i class="fa-solid fa-language text-lg"></i>
+                    <span x-text="lang === 'fa' ? 'English' : 'فارسی'"></span>
+                </button>
+                <button class="relative text-slate-500 hover:text-slate-800 bg-white/60 w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center num" x-text="fmt(2)"></span>
+                </button>
+                <span class="text-sm font-bold text-teal-800 bg-teal-100 px-4 py-2 rounded-xl border border-teal-200 shadow-sm"><i class="fa-solid fa-user-doctor mr-1 ml-1"></i> Doctor Portal</span>
+                <a href="index.html" class="text-red-500 hover:text-red-600 text-sm font-bold bg-white/50 px-4 py-2 rounded-xl border border-red-100 hover:bg-red-50 transition-colors">
+                    <i class="fa-solid fa-sign-out-alt"></i> <span x-show="lang === 'fa'">خروج</span><span x-show="lang === 'en'" x-cloak>Logout</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 relative z-10 flex-grow"
+          x-data="{
+            activeTab: 'catalogs',
+            otpDigits: ['4','8','1','2'],
+            fmt(n){ n = n.toString(); return this.lang==='fa' ? n.replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]) : n; }
+          }">
+        <div class="max-w-6xl mx-auto space-y-6">
+
+            <!-- Profile + quick stats -->
+            <div class="glass p-8 rounded-[2.5rem] shadow-sm flex flex-col lg:flex-row items-center justify-between gap-6 border border-white bg-white/60">
+                <div class="flex items-center gap-6 w-full lg:w-auto">
+                    <div class="relative shrink-0">
+                        <img src="https://i.pravatar.cc/150?u=doc1" class="w-24 h-24 md:w-28 md:h-28 rounded-full shadow-lg border-4 border-white object-cover">
+                        <div class="absolute bottom-1 left-1 w-6 h-6 bg-teal-500 border-2 border-white rounded-full"></div>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-1">
+                            <span x-show="lang === 'fa'">دکتر علیرضا محمدی</span>
+                            <span x-show="lang === 'en'" x-cloak>Dr. Alireza Mohammadi</span>
+                        </h2>
+                        <p class="text-slate-500 font-medium text-lg mb-2">
+                            <span x-show="lang === 'fa'">متخصص داخلی - قلب و عروق</span>
+                            <span x-show="lang === 'en'" x-cloak>Internal Medicine - Cardiology</span>
+                        </p>
+                        <div class="flex items-center gap-2 text-sm font-bold text-slate-500">
+                            <i class="fa-solid fa-location-dot text-teal-500"></i>
+                            <span x-show="lang==='fa'">تهران، خیابان ولیعصر، کلینیک قلب پارسیان</span>
+                            <span x-show="lang==='en'" x-cloak>Tehran, Valiasr St., Parsian Heart Clinic</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-3 w-full lg:w-auto">
+                    <div class="text-center bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <div class="text-2xl font-black text-teal-600 num" x-text="fmt(12)"></div>
+                        <div class="text-[11px] font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">ویزیت این ماه</span><span x-show="lang==='en'" x-cloak>Visits/mo</span></div>
+                    </div>
+                    <div class="text-center bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <div class="text-2xl font-black text-blue-600 num" x-text="fmt(7)"></div>
+                        <div class="text-[11px] font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">نماینده مرتبط</span><span x-show="lang==='en'" x-cloak>Linked Reps</span></div>
+                    </div>
+                    <div class="text-center bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <div class="text-2xl font-black font-mono text-teal-600 tracking-wider num" x-text="fmt(123456)"></div>
+                        <div class="text-[11px] font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">کد نظام پزشکی</span><span x-show="lang==='en'" x-cloak>Council No.</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <button @click="activeTab = 'catalogs'" :class="activeTab === 'catalogs' ? 'bg-slate-800 text-white shadow-md' : 'bg-white/60 text-slate-600 hover:bg-white'" class="px-6 py-3 rounded-2xl font-bold transition-all whitespace-nowrap border border-white">
+                    <i class="fa-solid fa-book-medical mr-1 ml-1"></i>
+                    <span x-show="lang === 'fa'">کاتالوگ‌ها، برنامه ویزیت و تایید کد</span>
+                    <span x-show="lang === 'en'" x-cloak>Catalogs, Visit Schedule & OTP</span>
+                </button>
+                <button @click="activeTab = 'events'" :class="activeTab === 'events' ? 'bg-slate-800 text-white shadow-md' : 'bg-white/60 text-slate-600 hover:bg-white'" class="px-6 py-3 rounded-2xl font-bold transition-all whitespace-nowrap border border-white relative">
+                    <i class="fa-solid fa-calendar-days mr-1 ml-1"></i>
+                    <span x-show="lang === 'fa'">رویدادها و همایش‌ها</span>
+                    <span x-show="lang === 'en'" x-cloak>Events & Congresses</span>
+                    <span class="absolute -top-1.5 -left-1.5 bg-rose-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white num" x-text="fmt(3)"></span>
+                </button>
+                <button @click="activeTab = 'history'" :class="activeTab === 'history' ? 'bg-slate-800 text-white shadow-md' : 'bg-white/60 text-slate-600 hover:bg-white'" class="px-6 py-3 rounded-2xl font-bold transition-all whitespace-nowrap border border-white">
+                    <i class="fa-solid fa-clock-rotate-left mr-1 ml-1"></i>
+                    <span x-show="lang === 'fa'">سوابق ویزیت و امتیازدهی</span>
+                    <span x-show="lang === 'en'" x-cloak>Visit History & Rating</span>
+                </button>
+                <button @click="activeTab = 'guide'" :class="activeTab === 'guide' ? 'bg-slate-800 text-white shadow-md' : 'bg-white/60 text-slate-600 hover:bg-white'" class="px-6 py-3 rounded-2xl font-bold transition-all whitespace-nowrap border border-white">
+                    <i class="fa-solid fa-circle-question mr-1 ml-1"></i>
+                    <span x-show="lang === 'fa'">راهنمای سیستم</span>
+                    <span x-show="lang === 'en'" x-cloak>System Guide</span>
+                </button>
+            </div>
+
+            <!-- ============ TAB 1: CATALOGS + SCHEDULE + OTP ============ -->
+            <div x-show="activeTab === 'catalogs'" class="space-y-6">
+
+                <!-- OTP Visit Confirmation Widget (priority action) -->
+                <div class="glass rounded-[2.5rem] border-2 border-teal-300 bg-gradient-to-l from-teal-50/80 to-blue-50/60 p-6 md:p-8 shadow-lg">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div class="flex items-center gap-5">
+                            <div class="w-16 h-16 rounded-2xl bg-teal-500 text-white flex items-center justify-center text-2xl shadow-lg pulse-ring shrink-0">
+                                <i class="fa-solid fa-comment-sms"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <h3 class="font-extrabold text-lg text-slate-800"><span x-show="lang==='fa'">تایید حضور نماینده علمی</span><span x-show="lang==='en'" x-cloak>Confirm Med-Rep Visit</span></h3>
+                                    <span class="bg-amber-100 text-amber-700 text-[11px] font-bold px-2 py-0.5 rounded-full border border-amber-200"><span x-show="lang==='fa'">در انتظار تایید</span><span x-show="lang==='en'" x-cloak>Awaiting</span></span>
+                                </div>
+                                <p class="text-sm text-slate-600 font-medium">
+                                    <span x-show="lang==='fa'">نماینده <b>«حسین محمدی»</b> از شرکت <b>داروسازی البرز</b> در محل شما حضور دارد. کد ۴ رقمی که به شماره <b class="dir-ltr inline-block">0912***4521</b> شما پیامک شده را به نماینده اعلام کنید.</span>
+                                    <span x-show="lang==='en'" x-cloak><b>Hossein Mohammadi</b> from <b>Alborz Pharma</b> is present at your clinic. Read the 4-digit code sent to your phone to the rep.</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center gap-3 shrink-0">
+                            <div class="flex gap-2">
+                                <template x-for="d in otpDigits">
+                                    <div class="w-12 h-14 md:w-14 md:h-16 bg-white border-2 border-teal-400 rounded-2xl flex items-center justify-center text-3xl font-black text-teal-700 shadow-sm num" x-text="fmt(d)"></div>
+                                </template>
+                            </div>
+                            <div class="flex gap-2 text-xs font-bold">
+                                <button class="text-teal-600 hover:text-teal-800"><i class="fa-solid fa-rotate mr-1"></i><span x-show="lang==='fa'">ارسال مجدد کد</span><span x-show="lang==='en'" x-cloak>Resend code</span></button>
+                                <span class="text-slate-300">|</span>
+                                <span class="text-slate-400"><span x-show="lang==='fa'">اعتبار:</span><span x-show="lang==='en'" x-cloak>Expires:</span> <span class="num" x-text="fmt('02:14')"></span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rate Med-Rep Visit (multi-criteria, appears after a visit is confirmed) -->
+                <div class="glass p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-white bg-white/60"
+                     x-data="{
+                        criteria: [
+                            { key:'knowledge', fa:'دانش محصول', en:'Product Knowledge', icon:'fa-book-medical', value:0, hover:0 },
+                            { key:'punctuality', fa:'وقت‌شناسی', en:'Punctuality', icon:'fa-clock', value:0, hover:0 },
+                            { key:'professionalism', fa:'رفتار حرفه‌ای', en:'Professionalism', icon:'fa-handshake', value:0, hover:0 },
+                            { key:'followup', fa:'پیگیری و پاسخگویی', en:'Follow-up & Responsiveness', icon:'fa-reply', value:0, hover:0 }
+                        ],
+                        get overall(){
+                            const rated = this.criteria.filter(c => c.value > 0);
+                            if(!rated.length) return 0;
+                            return (rated.reduce((s,c)=>s+c.value,0) / rated.length).toFixed(1);
+                        },
+                        get canSubmit(){ return this.criteria.every(c => c.value > 0); }
+                     }">
+                    <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
+                        <h3 class="font-extrabold text-lg text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-star text-amber-400"></i>
+                            <span x-show="lang==='fa'">امتیازدهی به ویزیت حسین محمدی (کاردیوپلاس ۲۰)</span>
+                            <span x-show="lang==='en'" x-cloak>Rate Hossein Mohammadi's Visit (Cardioplus 20)</span>
+                        </h3>
+                        <span class="bg-teal-100 text-teal-700 text-xs font-bold px-3 py-1 rounded-lg" x-show="overall > 0">
+                            <span x-show="lang==='fa'">میانگین:</span><span x-show="lang==='en'" x-cloak>Average:</span> <span x-text="overall"></span> / 5
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 font-medium mb-5"><span x-show="lang==='fa'">این امتیازها مستقیماً در پرونده عملکرد نماینده نزد شرکت دارویی و SIVRAS ثبت می‌شود و به صورت جداگانه دیده می‌شود، نه فقط یک عدد کلی.</span><span x-show="lang==='en'" x-cloak>These scores are recorded separately in the rep's performance file — not collapsed into a single number.</span></p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <template x-for="c in criteria" :key="c.key">
+                            <div class="bg-white rounded-2xl border border-slate-100 p-4 flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid text-slate-400" :class="c.icon"></i>
+                                    <span class="font-bold text-sm text-slate-700" x-text="lang==='fa' ? c.fa : c.en"></span>
+                                </div>
+                                <div class="flex gap-1 text-xl" @mouseleave="c.hover = 0">
+                                    <template x-for="n in [1,2,3,4,5]" :key="n">
+                                        <i class="fa-solid fa-star star"
+                                           :class="(c.hover || c.value) >= n ? 'text-amber-400' : 'text-slate-200'"
+                                           @mouseenter="c.hover = n"
+                                           @click="c.value = n"></i>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="flex justify-end mt-5">
+                        <button :disabled="!canSubmit" :class="canSubmit ? 'bg-emerald-500 hover:bg-emerald-600 cursor-pointer' : 'bg-slate-200 cursor-not-allowed'" class="text-white px-6 py-3 rounded-xl font-bold text-sm transition-colors">
+                            <i class="fa-solid fa-paper-plane mr-1 ml-1"></i><span x-show="lang==='fa'">ثبت امتیاز</span><span x-show="lang==='en'" x-cloak>Submit Rating</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Weekly Visit Schedule -->
+                <div class="glass p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-white bg-white/40">
+                    <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+                        <h3 class="font-extrabold text-xl text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-week text-blue-500"></i>
+                            <span x-show="lang==='fa'">برنامه هفتگی ویزیت‌ها — چه کسی و چه زمانی می‌آید</span>
+                            <span x-show="lang==='en'" x-cloak>Weekly Visit Schedule — Who's Coming & When</span>
+                        </h3>
+                        <span class="text-xs font-bold text-slate-400"><span x-show="lang==='fa'">هفته جاری</span><span x-show="lang==='en'" x-cloak>This week</span></span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                        <div class="bg-white rounded-3xl border-2 border-teal-200 shadow-sm p-5 relative overflow-hidden">
+                            <span class="absolute top-0 left-0 bg-teal-500 text-white text-[10px] font-bold px-3 py-1 rounded-br-xl"><span x-show="lang==='fa'">امروز</span><span x-show="lang==='en'" x-cloak>Today</span></span>
+                            <div class="text-center mb-3 mt-3">
+                                <div class="text-xs font-bold text-slate-400"><span x-show="lang==='fa'">شنبه</span><span x-show="lang==='en'" x-cloak>Sat</span></div>
+                                <div class="text-2xl font-black text-slate-800 num" x-text="fmt('10:30')"></div>
+                            </div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <img src="https://i.pravatar.cc/80?u=3" class="w-10 h-10 rounded-xl object-cover">
+                                <div>
+                                    <div class="font-bold text-sm text-slate-800"><span x-show="lang==='fa'">حسین محمدی</span><span x-show="lang==='en'" x-cloak>Hossein Mohammadi</span></div>
+                                    <div class="text-[11px] text-slate-400"><span x-show="lang==='fa'">داروسازی البرز</span><span x-show="lang==='en'" x-cloak>Alborz Pharma</span></div>
+                                </div>
+                            </div>
+                            <div class="text-xs font-bold text-slate-500 bg-slate-50 rounded-lg px-2 py-1.5 mb-2"><span x-show="lang==='fa'">کاردیوپلاس ۲۰</span><span x-show="lang==='en'" x-cloak>Cardioplus 20</span></div>
+                            <span class="block text-center bg-teal-100 text-teal-700 text-xs font-bold py-1.5 rounded-lg"><i class="fa-solid fa-check mr-1"></i><span x-show="lang==='fa'">تایید شده</span><span x-show="lang==='en'" x-cloak>Confirmed</span></span>
+                        </div>
+                        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-5">
+                            <div class="text-center mb-3">
+                                <div class="text-xs font-bold text-slate-400"><span x-show="lang==='fa'">یکشنبه</span><span x-show="lang==='en'" x-cloak>Sun</span></div>
+                                <div class="text-2xl font-black text-slate-800 num" x-text="fmt('12:00')"></div>
+                            </div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <img src="https://i.pravatar.cc/80?u=4" class="w-10 h-10 rounded-xl object-cover">
+                                <div>
+                                    <div class="font-bold text-sm text-slate-800"><span x-show="lang==='fa'">مریم کریمی</span><span x-show="lang==='en'" x-cloak>Maryam Karimi</span></div>
+                                    <div class="text-[11px] text-slate-400"><span x-show="lang==='fa'">سبحان دارو</span><span x-show="lang==='en'" x-cloak>Sobhan Darou</span></div>
+                                </div>
+                            </div>
+                            <div class="text-xs font-bold text-slate-500 bg-slate-50 rounded-lg px-2 py-1.5 mb-2"><span x-show="lang==='fa'">لوزارکس ۵۰</span><span x-show="lang==='en'" x-cloak>Losarex 50</span></div>
+                            <span class="block text-center bg-amber-100 text-amber-700 text-xs font-bold py-1.5 rounded-lg"><i class="fa-solid fa-hourglass-half mr-1"></i><span x-show="lang==='fa'">برنامه‌ریزی‌شده</span><span x-show="lang==='en'" x-cloak>Scheduled</span></span>
+                        </div>
+                        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-5">
+                            <div class="text-center mb-3">
+                                <div class="text-xs font-bold text-slate-400"><span x-show="lang==='fa'">سه‌شنبه</span><span x-show="lang==='en'" x-cloak>Tue</span></div>
+                                <div class="text-2xl font-black text-slate-800 num" x-text="fmt('09:15')"></div>
+                            </div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <img src="https://i.pravatar.cc/80?u=6" class="w-10 h-10 rounded-xl object-cover">
+                                <div>
+                                    <div class="font-bold text-sm text-slate-800"><span x-show="lang==='fa'">امیر توکلی</span><span x-show="lang==='en'" x-cloak>Amir Tavakoli</span></div>
+                                    <div class="text-[11px] text-slate-400"><span x-show="lang==='fa'">داروسازی ابوریحان</span><span x-show="lang==='en'" x-cloak>Aburaihan Pharma</span></div>
+                                </div>
+                            </div>
+                            <div class="text-xs font-bold text-slate-500 bg-slate-50 rounded-lg px-2 py-1.5 mb-2"><span x-show="lang==='fa'">سرترالین ۵۰</span><span x-show="lang==='en'" x-cloak>Sertraline 50</span></div>
+                            <span class="block text-center bg-amber-100 text-amber-700 text-xs font-bold py-1.5 rounded-lg"><i class="fa-solid fa-hourglass-half mr-1"></i><span x-show="lang==='fa'">برنامه‌ریزی‌شده</span><span x-show="lang==='en'" x-cloak>Scheduled</span></span>
+                        </div>
+                        <div class="bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm p-5 flex flex-col items-center justify-center text-center text-slate-400">
+                            <i class="fa-solid fa-calendar-plus text-2xl mb-2"></i>
+                            <div class="text-xs font-bold"><span x-show="lang==='fa'"><span class="num" x-text="fmt(4)"></span> ویزیت دیگر تا پایان هفته</span><span x-show="lang==='en'" x-cloak><span class="num" x-text="fmt(4)"></span> more visits this week</span></div>
+                            <button class="text-teal-600 text-xs font-bold mt-2 underline"><span x-show="lang==='fa'">مشاهده کامل تقویم</span><span x-show="lang==='en'" x-cloak>View full calendar</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- What's New carousel -->
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-extrabold text-xl text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-sparkles text-amber-400"></i>
+                            <span x-show="lang==='fa'">تازه‌های دارویی و اطلاعیه‌ها</span><span x-show="lang==='en'" x-cloak>What's New</span>
+                        </h3>
+                        <span class="text-xs font-bold text-slate-400"><span x-show="lang==='fa'">به‌روزرسانی روزانه</span><span x-show="lang==='en'" x-cloak>Updated daily</span></span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div class="relative overflow-hidden rounded-3xl shadow-lg group h-48 text-white">
+                            <img src="https://picsum.photos/seed/rosuvastatin/500/300" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-blue-900/90 via-blue-800/50 to-transparent"></div>
+                            <span class="absolute top-4 right-4 bg-white/20 backdrop-blur text-[11px] font-bold px-3 py-1 rounded-full border border-white/30"><span x-show="lang==='fa'">محصول جدید</span><span x-show="lang==='en'" x-cloak>New Launch</span></span>
+                            <div class="absolute bottom-0 p-6">
+                                <h4 class="font-extrabold text-lg relative z-10"><span x-show="lang==='fa'">روزوواستاتین کربوکس ۲۰</span><span x-show="lang==='en'" x-cloak>Rosuvastatin Carbox 20mg</span></h4>
+                                <p class="text-xs text-white/80 relative z-10 mt-1"><span x-show="lang==='fa'">داروسازی سبحان دارو · اکنون در کاتالوگ شما</span><span x-show="lang==='en'" x-cloak>Sobhan Darou · Now available</span></p>
+                            </div>
+                        </div>
+                        <div class="relative overflow-hidden rounded-3xl shadow-lg group h-48 text-white">
+                            <img src="https://picsum.photos/seed/amlodipine/500/300" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-emerald-900/90 via-emerald-800/50 to-transparent"></div>
+                            <span class="absolute top-4 right-4 bg-white/20 backdrop-blur text-[11px] font-bold px-3 py-1 rounded-full border border-white/30"><span x-show="lang==='fa'">اطلاعیه دارویی</span><span x-show="lang==='en'" x-cloak>Drug Notice</span></span>
+                            <div class="absolute bottom-0 p-6">
+                                <h4 class="font-extrabold text-lg relative z-10"><span x-show="lang==='fa'">به‌روزرسانی دوز مصرف آملودیپین ۵</span><span x-show="lang==='en'" x-cloak>Amlodipine 5mg — Dosage Update</span></h4>
+                                <p class="text-xs text-white/80 relative z-10 mt-1"><span x-show="lang==='fa'">هشدار سازمان غذا و دارو</span><span x-show="lang==='en'" x-cloak>FDA-equivalent advisory</span></p>
+                            </div>
+                        </div>
+                        <div class="relative overflow-hidden rounded-3xl shadow-lg group h-48 text-white">
+                            <img src="https://picsum.photos/seed/cardiocongress/500/300" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-rose-900/90 via-orange-800/50 to-transparent"></div>
+                            <span class="absolute top-4 right-4 bg-white/20 backdrop-blur text-[11px] font-bold px-3 py-1 rounded-full border border-white/30"><span x-show="lang==='fa'">رویداد</span><span x-show="lang==='en'" x-cloak>Event</span></span>
+                            <div class="absolute bottom-0 p-6">
+                                <h4 class="font-extrabold text-lg relative z-10"><span x-show="lang==='fa'">همایش سراسری قلب و عروق ۱۴۰۳</span><span x-show="lang==='en'" x-cloak>National Cardiology Congress 2026</span></h4>
+                                <p class="text-xs text-white/80 relative z-10 mt-1"><span x-show="lang==='fa'">۲۰ مهر · مرکز همایش‌های برج میلاد</span><span x-show="lang==='en'" x-cloak>Oct 12 · Milad Tower</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Catalog filters + grid -->
+                <div class="glass p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-white bg-white/40">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+                        <h3 class="font-extrabold text-xl text-slate-800"><span x-show="lang==='fa'">کاتالوگ کامل محصولات</span><span x-show="lang==='en'" x-cloak>Full Product Catalog</span></h3>
+                        <div class="flex gap-2 flex-wrap text-xs font-bold">
+                            <button class="px-4 py-2 rounded-xl bg-slate-800 text-white"><span x-show="lang==='fa'">همه</span><span x-show="lang==='en'" x-cloak>All</span></button>
+                            <button class="px-4 py-2 rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"><span x-show="lang==='fa'">قلب و عروق</span><span x-show="lang==='en'" x-cloak>Cardiology</span></button>
+                            <button class="px-4 py-2 rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"><span x-show="lang==='fa'">غدد و دیابت</span><span x-show="lang==='en'" x-cloak>Endocrinology</span></button>
+                            <button class="px-4 py-2 rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"><span x-show="lang==='fa'">گوارش</span><span x-show="lang==='en'" x-cloak>Gastroenterology</span></button>
+                            <button class="px-4 py-2 rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"><span x-show="lang==='fa'">اعصاب و روان</span><span x-show="lang==='en'" x-cloak>Neuro-Psychiatry</span></button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group overflow-hidden">
+                            <div class="h-32 relative overflow-hidden">
+                                <img src="https://picsum.photos/seed/cardioplus/400/200" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                <span class="absolute top-3 right-3 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg"><span x-show="lang==='fa'">جدید</span><span x-show="lang==='en'" x-cloak>New</span></span>
+                            </div>
+                            <div class="p-6 pt-4">
+                                <h4 class="font-extrabold text-lg text-slate-800 mb-1"><span x-show="lang==='fa'">کاردیوپلاس (آتورواستاتین ۲۰)</span><span x-show="lang==='en'" x-cloak>Cardioplus (Atorvastatin 20mg)</span></h4>
+                                <p class="text-sm text-slate-500 font-medium mb-4"><span x-show="lang==='fa'">داروسازی البرز · قلب و عروق</span><span x-show="lang==='en'" x-cloak>Alborz Pharma · Cardiology</span></p>
+                                <div class="flex gap-2">
+                                    <button class="flex-1 bg-blue-50 text-blue-700 py-3 rounded-xl font-bold hover:bg-blue-100 transition-colors text-sm border border-blue-100"><i class="fa-solid fa-download mr-1 ml-1"></i>PDF</button>
+                                    <button class="flex-1 bg-slate-50 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-100 transition-colors text-sm border border-slate-100"><i class="fa-solid fa-eye mr-1 ml-1"></i><span x-show="lang==='fa'">مشاهده</span><span x-show="lang==='en'" x-cloak>View</span></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group overflow-hidden">
+                            <div class="h-32 relative overflow-hidden">
+                                <img src="https://picsum.photos/seed/glucopharm/400/200" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            <div class="p-6 pt-4">
+                                <h4 class="font-extrabold text-lg text-slate-800 mb-1"><span x-show="lang==='fa'">گلوکوفارم (متفورمین ۵۰۰)</span><span x-show="lang==='en'" x-cloak>Glucopharm (Metformin 500mg)</span></h4>
+                                <p class="text-sm text-slate-500 font-medium mb-4"><span x-show="lang==='fa'">داروسازی البرز · غدد و دیابت</span><span x-show="lang==='en'" x-cloak>Alborz Pharma · Endocrinology</span></p>
+                                <div class="flex gap-2">
+                                    <button class="flex-1 bg-blue-50 text-blue-700 py-3 rounded-xl font-bold hover:bg-blue-100 transition-colors text-sm border border-blue-100"><i class="fa-solid fa-download mr-1 ml-1"></i>PDF</button>
+                                    <button class="flex-1 bg-slate-50 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-100 transition-colors text-sm border border-slate-100"><i class="fa-solid fa-eye mr-1 ml-1"></i><span x-show="lang==='fa'">مشاهده</span><span x-show="lang==='en'" x-cloak>View</span></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group overflow-hidden">
+                            <div class="h-32 relative overflow-hidden">
+                                <img src="https://picsum.photos/seed/losarex/400/200" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            <div class="p-6 pt-4">
+                                <h4 class="font-extrabold text-lg text-slate-800 mb-1"><span x-show="lang==='fa'">لوزارکس (لوزارتان ۵۰)</span><span x-show="lang==='en'" x-cloak>Losarex (Losartan 50mg)</span></h4>
+                                <p class="text-sm text-slate-500 font-medium mb-4"><span x-show="lang==='fa'">سبحان دارو · قلب و عروق</span><span x-show="lang==='en'" x-cloak>Sobhan Darou · Cardiology</span></p>
+                                <div class="flex gap-2">
+                                    <button class="flex-1 bg-blue-50 text-blue-700 py-3 rounded-xl font-bold hover:bg-blue-100 transition-colors text-sm border border-blue-100"><i class="fa-solid fa-download mr-1 ml-1"></i>PDF</button>
+                                    <button class="flex-1 bg-slate-50 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-100 transition-colors text-sm border border-slate-100"><i class="fa-solid fa-eye mr-1 ml-1"></i><span x-show="lang==='fa'">مشاهده</span><span x-show="lang==='en'" x-cloak>View</span></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group overflow-hidden">
+                            <div class="h-32 relative overflow-hidden">
+                                <img src="https://picsum.photos/seed/pantoprazole/400/200" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            <div class="p-6 pt-4">
+                                <h4 class="font-extrabold text-lg text-slate-800 mb-1"><span x-show="lang==='fa'">پنتوپرازول سبحان ۴۰</span><span x-show="lang==='en'" x-cloak>Pantoprazole Sobhan 40mg</span></h4>
+                                <p class="text-sm text-slate-500 font-medium mb-4"><span x-show="lang==='fa'">سبحان دارو · گوارش</span><span x-show="lang==='en'" x-cloak>Sobhan Darou · Gastroenterology</span></p>
+                                <div class="flex gap-2">
+                                    <button class="flex-1 bg-blue-50 text-blue-700 py-3 rounded-xl font-bold hover:bg-blue-100 transition-colors text-sm border border-blue-100"><i class="fa-solid fa-download mr-1 ml-1"></i>PDF</button>
+                                    <button class="flex-1 bg-slate-50 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-100 transition-colors text-sm border border-slate-100"><i class="fa-solid fa-eye mr-1 ml-1"></i><span x-show="lang==='fa'">مشاهده</span><span x-show="lang==='en'" x-cloak>View</span></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group overflow-hidden">
+                            <div class="h-32 relative overflow-hidden">
+                                <img src="https://picsum.photos/seed/sertraline/400/200" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                <span class="absolute top-3 right-3 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-lg"><span x-show="lang==='fa'">جدید</span><span x-show="lang==='en'" x-cloak>New</span></span>
+                            </div>
+                            <div class="p-6 pt-4">
+                                <h4 class="font-extrabold text-lg text-slate-800 mb-1"><span x-show="lang==='fa'">سرترالین ابوریحان ۵۰</span><span x-show="lang==='en'" x-cloak>Sertraline Aburaihan 50mg</span></h4>
+                                <p class="text-sm text-slate-500 font-medium mb-4"><span x-show="lang==='fa'">داروسازی ابوریحان · اعصاب و روان</span><span x-show="lang==='en'" x-cloak>Aburaihan Pharma · Neuro-Psychiatry</span></p>
+                                <div class="flex gap-2">
+                                    <button class="flex-1 bg-blue-50 text-blue-700 py-3 rounded-xl font-bold hover:bg-blue-100 transition-colors text-sm border border-blue-100"><i class="fa-solid fa-download mr-1 ml-1"></i>PDF</button>
+                                    <button class="flex-1 bg-slate-50 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-100 transition-colors text-sm border border-slate-100"><i class="fa-solid fa-eye mr-1 ml-1"></i><span x-show="lang==='fa'">مشاهده</span><span x-show="lang==='en'" x-cloak>View</span></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg transition-all group overflow-hidden">
+                            <div class="h-32 relative overflow-hidden">
+                                <img src="https://picsum.photos/seed/montelukast/400/200" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            <div class="p-6 pt-4">
+                                <h4 class="font-extrabold text-lg text-slate-800 mb-1"><span x-show="lang==='fa'">مونته‌لوکاست البرز ۱۰</span><span x-show="lang==='en'" x-cloak>Montelukast Alborz 10mg</span></h4>
+                                <p class="text-sm text-slate-500 font-medium mb-4"><span x-show="lang==='fa'">داروسازی البرز · تنفسی</span><span x-show="lang==='en'" x-cloak>Alborz Pharma · Respiratory</span></p>
+                                <div class="flex gap-2">
+                                    <button class="flex-1 bg-blue-50 text-blue-700 py-3 rounded-xl font-bold hover:bg-blue-100 transition-colors text-sm border border-blue-100"><i class="fa-solid fa-download mr-1 ml-1"></i>PDF</button>
+                                    <button class="flex-1 bg-slate-50 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-100 transition-colors text-sm border border-slate-100"><i class="fa-solid fa-eye mr-1 ml-1"></i><span x-show="lang==='fa'">مشاهده</span><span x-show="lang==='en'" x-cloak>View</span></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ TAB 2: EVENTS & CONGRESSES ============ -->
+            <div x-show="activeTab === 'events'" x-cloak class="space-y-6">
+                <div class="glass p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-white bg-white/40">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+                        <h3 class="font-extrabold text-xl text-slate-800"><span x-show="lang==='fa'">رویدادهای پیش‌رو</span><span x-show="lang==='en'" x-cloak>Upcoming Events</span></h3>
+                        <div class="flex gap-2 text-xs font-bold">
+                            <button class="px-3 py-1.5 rounded-lg bg-slate-800 text-white"><span x-show="lang==='fa'">همه</span><span x-show="lang==='en'" x-cloak>All</span></button>
+                            <button class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600"><span x-show="lang==='fa'">همایش</span><span x-show="lang==='en'" x-cloak>Congress</span></button>
+                            <button class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600"><span x-show="lang==='fa'">کارگاه آموزشی</span><span x-show="lang==='en'" x-cloak>Workshop</span></button>
+                            <button class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600"><span x-show="lang==='fa'">وبینار</span><span x-show="lang==='en'" x-cloak>Webinar</span></button>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex flex-col md:flex-row gap-5 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all overflow-hidden">
+                            <div class="w-full md:w-40 h-32 md:h-auto shrink-0 relative">
+                                <img src="https://picsum.photos/seed/congress2026/300/300" class="w-full h-full object-cover">
+                                <div class="absolute top-2 left-2 bg-white rounded-xl px-3 py-1.5 text-center shadow">
+                                    <span class="block text-lg font-black text-rose-600 num" x-text="fmt(20)"></span>
+                                    <span class="block text-[10px] font-bold text-slate-500"><span x-show="lang==='fa'">مهر</span><span x-show="lang==='en'" x-cloak>Oct</span></span>
+                                </div>
+                            </div>
+                            <div class="flex-1 p-5 pl-0 md:pl-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="bg-rose-100 text-rose-700 text-[11px] font-bold px-2 py-0.5 rounded-full"><span x-show="lang==='fa'">همایش</span><span x-show="lang==='en'" x-cloak>Congress</span></span>
+                                    <span class="text-xs text-slate-400 font-bold"><span x-show="lang==='fa'">داروسازی سبحان دارو</span><span x-show="lang==='en'" x-cloak>Sobhan Darou</span></span>
+                                </div>
+                                <h4 class="font-extrabold text-lg text-slate-800 mb-1"><span x-show="lang==='fa'">همایش سراسری قلب و عروق ۱۴۰۳</span><span x-show="lang==='en'" x-cloak>National Cardiology Congress 2026</span></h4>
+                                <p class="text-sm text-slate-500 font-medium mb-3"><span x-show="lang==='fa'">مروری بر جدیدترین دستاوردهای درمان فشار خون و چربی خون با حضور اساتید برجسته کشور.</span><span x-show="lang==='en'" x-cloak>Latest advances in hypertension & lipid management, with leading national experts.</span></p>
+                                <div class="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-500">
+                                    <span><i class="fa-solid fa-location-dot text-teal-500 mr-1"></i><span x-show="lang==='fa'">مرکز همایش‌های برج میلاد، تهران</span><span x-show="lang==='en'" x-cloak>Milad Tower, Tehran</span></span>
+                                    <span><i class="fa-solid fa-clock text-teal-500 mr-1"></i><span class="num" x-text="fmt('09:00 - 17:00')"></span></span>
+                                </div>
+                            </div>
+                            <div class="flex md:flex-col gap-2 justify-center items-center p-5 pt-0 md:pt-5 shrink-0">
+                                <button class="bg-teal-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-teal-700 whitespace-nowrap"><span x-show="lang==='fa'">ثبت‌نام</span><span x-show="lang==='en'" x-cloak>Register</span></button>
+                                <button class="bg-slate-50 text-slate-500 px-5 py-2.5 rounded-xl font-bold text-sm border border-slate-200 whitespace-nowrap"><span x-show="lang==='fa'">جزئیات</span><span x-show="lang==='en'" x-cloak>Details</span></button>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:flex-row gap-5 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all overflow-hidden">
+                            <div class="w-full md:w-40 h-32 md:h-auto shrink-0 relative">
+                                <img src="https://picsum.photos/seed/webinardiabetes/300/300" class="w-full h-full object-cover">
+                                <div class="absolute top-2 left-2 bg-white rounded-xl px-3 py-1.5 text-center shadow">
+                                    <span class="block text-lg font-black text-blue-600 num" x-text="fmt(5)"></span>
+                                    <span class="block text-[10px] font-bold text-slate-500"><span x-show="lang==='fa'">آبان</span><span x-show="lang==='en'" x-cloak>Nov</span></span>
+                                </div>
+                            </div>
+                            <div class="flex-1 p-5 pl-0 md:pl-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2 py-0.5 rounded-full"><span x-show="lang==='fa'">وبینار</span><span x-show="lang==='en'" x-cloak>Webinar</span></span>
+                                    <span class="text-xs text-slate-400 font-bold"><span x-show="lang==='fa'">داروسازی البرز</span><span x-show="lang==='en'" x-cloak>Alborz Pharma</span></span>
+                                </div>
+                                <h4 class="font-extrabold text-lg text-slate-800 mb-1"><span x-show="lang==='fa'">وبینار مدیریت دیابت نوع ۲ در سالمندان</span><span x-show="lang==='en'" x-cloak>Type-2 Diabetes Management in Elderly — Webinar</span></h4>
+                                <p class="text-sm text-slate-500 font-medium mb-3"><span x-show="lang==='fa'">ارائه آنلاین با امکان پرسش و پاسخ زنده، مناسب برای متخصصان داخلی و غدد.</span><span x-show="lang==='en'" x-cloak>Live Q&A session for internists and endocrinologists.</span></p>
+                                <div class="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-500">
+                                    <span><i class="fa-solid fa-video text-blue-500 mr-1"></i><span x-show="lang==='fa'">آنلاین (Google Meet)</span><span x-show="lang==='en'" x-cloak>Online (Google Meet)</span></span>
+                                    <span><i class="fa-solid fa-clock text-blue-500 mr-1"></i><span class="num" x-text="fmt('18:00 - 19:30')"></span></span>
+                                </div>
+                            </div>
+                            <div class="flex md:flex-col gap-2 justify-center items-center p-5 pt-0 md:pt-5 shrink-0">
+                                <button class="bg-teal-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-teal-700 whitespace-nowrap"><span x-show="lang==='fa'">ثبت‌نام</span><span x-show="lang==='en'" x-cloak>Register</span></button>
+                                <button class="bg-slate-50 text-slate-500 px-5 py-2.5 rounded-xl font-bold text-sm border border-slate-200 whitespace-nowrap"><span x-show="lang==='fa'">جزئیات</span><span x-show="lang==='en'" x-cloak>Details</span></button>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:flex-row gap-5 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all overflow-hidden">
+                            <div class="w-full md:w-40 h-32 md:h-auto shrink-0 relative">
+                                <img src="https://picsum.photos/seed/workshopsleep/300/300" class="w-full h-full object-cover">
+                                <div class="absolute top-2 left-2 bg-white rounded-xl px-3 py-1.5 text-center shadow">
+                                    <span class="block text-lg font-black text-emerald-600 num" x-text="fmt(18)"></span>
+                                    <span class="block text-[10px] font-bold text-slate-500"><span x-show="lang==='fa'">آبان</span><span x-show="lang==='en'" x-cloak>Nov</span></span>
+                                </div>
+                            </div>
+                            <div class="flex-1 p-5 pl-0 md:pl-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="bg-emerald-100 text-emerald-700 text-[11px] font-bold px-2 py-0.5 rounded-full"><span x-show="lang==='fa'">کارگاه آموزشی</span><span x-show="lang==='en'" x-cloak>Workshop</span></span>
+                                    <span class="text-xs text-slate-400 font-bold"><span x-show="lang==='fa'">داروسازی ابوریحان</span><span x-show="lang==='en'" x-cloak>Aburaihan Pharma</span></span>
+                                </div>
+                                <h4 class="font-extrabold text-lg text-slate-800 mb-1"><span x-show="lang==='fa'">کارگاه بالینی اختلالات خواب و اضطراب</span><span x-show="lang==='en'" x-cloak>Clinical Workshop: Sleep & Anxiety Disorders</span></h4>
+                                <p class="text-sm text-slate-500 font-medium mb-3"><span x-show="lang==='fa'">کارگاه حضوری با ظرفیت محدود، همراه با گواهی حضور معتبر.</span><span x-show="lang==='en'" x-cloak>Limited-capacity in-person workshop with attendance certificate.</span></p>
+                                <div class="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-500">
+                                    <span><i class="fa-solid fa-location-dot text-emerald-500 mr-1"></i><span x-show="lang==='fa'">هتل اسپیناس، تهران</span><span x-show="lang==='en'" x-cloak>Espinas Hotel, Tehran</span></span>
+                                    <span><i class="fa-solid fa-users text-emerald-500 mr-1"></i><span x-show="lang==='fa'">ظرفیت باقی‌مانده:</span><span x-show="lang==='en'" x-cloak>Seats left:</span> <span class="num" x-text="fmt(12)"></span></span>
+                                </div>
+                            </div>
+                            <div class="flex md:flex-col gap-2 justify-center items-center p-5 pt-0 md:pt-5 shrink-0">
+                                <button class="bg-teal-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-teal-700 whitespace-nowrap"><span x-show="lang==='fa'">ثبت‌نام</span><span x-show="lang==='en'" x-cloak>Register</span></button>
+                                <button class="bg-slate-50 text-slate-500 px-5 py-2.5 rounded-xl font-bold text-sm border border-slate-200 whitespace-nowrap"><span x-show="lang==='fa'">جزئیات</span><span x-show="lang==='en'" x-cloak>Details</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass p-6 rounded-[2rem] border border-white bg-white/40">
+                    <h4 class="font-extrabold text-slate-800 mb-3 flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-slate-400"></i><span x-show="lang==='fa'">رویدادهای گذشته</span><span x-show="lang==='en'" x-cloak>Past Events</span></h4>
+                    <div class="flex items-center justify-between text-sm font-medium text-slate-500 border-b border-slate-100 py-3">
+                        <span><span x-show="lang==='fa'">سمینار به‌روزرسانی دستورالعمل‌های فشار خون · شرکت‌کننده</span><span x-show="lang==='en'" x-cloak>Hypertension Guidelines Update Seminar · Attended</span></span>
+                        <span class="text-slate-400 num" x-text="fmt('1403/04/12')"></span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm font-medium text-slate-500 py-3">
+                        <span><span x-show="lang==='fa'">وبینار داروهای ژنریک قلبی · شرکت‌کننده</span><span x-show="lang==='en'" x-cloak>Generic Cardiac Drugs Webinar · Attended</span></span>
+                        <span class="text-slate-400 num" x-text="fmt('1403/02/03')"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ TAB 3: VISIT HISTORY + RATING ============ -->
+            <div x-show="activeTab === 'history'" x-cloak class="space-y-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center">
+                        <div class="text-2xl font-black text-slate-800 num" x-text="fmt(48)"></div>
+                        <div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">کل ویزیت‌ها</span><span x-show="lang==='en'" x-cloak>Total Visits</span></div>
+                    </div>
+                    <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center">
+                        <div class="text-2xl font-black text-teal-600 num" x-text="fmt(12)"></div>
+                        <div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">این ماه</span><span x-show="lang==='en'" x-cloak>This Month</span></div>
+                    </div>
+                    <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center">
+                        <div class="text-2xl font-black text-blue-600 num" x-text="fmt(7)"></div>
+                        <div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">نماینده مرتبط</span><span x-show="lang==='en'" x-cloak>Linked Reps</span></div>
+                    </div>
+                    <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center">
+                        <div class="text-2xl font-black text-amber-500 num"><span x-text="fmt('4.6')"></span> <i class="fa-solid fa-star text-sm"></i></div>
+                        <div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">میانگین امتیاز داده‌شده</span><span x-show="lang==='en'" x-cloak>Avg. Rating Given</span></div>
+                    </div>
+                </div>
+
+                <div class="glass p-6 rounded-[2.5rem] shadow-sm border border-white bg-white/40">
+                    <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+                        <h3 class="font-extrabold text-xl text-slate-800"><span x-show="lang==='fa'">سوابق ویزیت‌ها</span><span x-show="lang==='en'" x-cloak>Visit History</span></h3>
+                        <input type="text" :placeholder="lang==='fa' ? 'جستجوی نماینده یا محصول...' : 'Search rep or product...'" class="border-2 border-slate-200 rounded-xl px-4 py-2 text-sm font-medium w-64 focus:border-teal-500 outline-none">
+                    </div>
+                    <p class="text-xs text-slate-500 font-medium mb-3"><i class="fa-solid fa-circle-info mr-1 ml-1 text-blue-400"></i><span x-show="lang==='fa'">روی «جزئیات امتیاز» بزنید تا امتیاز هر معیار (دانش محصول، وقت‌شناسی، رفتار حرفه‌ای، پیگیری) را جداگانه ببینید.</span><span x-show="lang==='en'" x-cloak>Click "Rating Breakdown" to see the score for each individual criterion (knowledge, punctuality, professionalism, follow-up).</span></p>
+                    <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                        <table class="w-full text-right min-w-[720px]" :class="lang === 'fa' ? 'text-right' : 'text-left'">
+                            <thead class="bg-slate-100 text-slate-600 font-bold border-b border-slate-200 text-sm">
+                                <tr>
+                                    <th class="p-4"><span x-show="lang === 'fa'">تاریخ و زمان</span><span x-show="lang === 'en'" x-cloak>Date & Time</span></th>
+                                    <th class="p-4"><span x-show="lang === 'fa'">نماینده علمی</span><span x-show="lang === 'en'" x-cloak>Med-Rep</span></th>
+                                    <th class="p-4"><span x-show="lang === 'fa'">محصول ارائه‌شده</span><span x-show="lang === 'en'" x-cloak>Product Presented</span></th>
+                                    <th class="p-4"><span x-show="lang === 'fa'">وضعیت</span><span x-show="lang === 'en'" x-cloak>Status</span></th>
+                                    <th class="p-4"><span x-show="lang === 'fa'">امتیاز شما</span><span x-show="lang === 'en'" x-cloak>Your Rating</span></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 bg-white font-medium text-sm">
+                                <template x-for="row in [
+                                    { date:'1403/06/10', time:'10:45', repFa:'حسین محمدی', repEn:'Hossein Mohammadi', avatar:3, prodFa:'کاردیوپلاس ۲۰', prodEn:'Cardioplus 20', status:'confirmed', overall:4.5, open:false, scores:{knowledge:5, punctuality:4, professionalism:5, followup:4} },
+                                    { date:'1403/05/28', time:'16:20', repFa:'مریم کریمی', repEn:'Maryam Karimi', avatar:4, prodFa:'گلوکوفارم ۵۰۰', prodEn:'Glucopharm 500', status:'confirmed', overall:5, open:false, scores:{knowledge:5, punctuality:5, professionalism:5, followup:5} },
+                                    { date:'1403/05/14', time:'11:05', repFa:'حسین محمدی', repEn:'Hossein Mohammadi', avatar:5, prodFa:'لوزارکس ۵۰', prodEn:'Losarex 50', status:'confirmed', overall:3, open:false, scores:{knowledge:4, punctuality:2, professionalism:4, followup:2} },
+                                    { date:'1403/04/30', time:'09:15', repFa:'امیر توکلی', repEn:'Amir Tavakoli', avatar:6, prodFa:'سرترالین ۵۰', prodEn:'Sertraline 50', status:'cancelled', overall:0, open:false, scores:null }
+                                ]" :key="row.date + row.time">
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-4 text-slate-700 num"><span x-text="fmt(row.date)"></span> <span class="text-slate-400" x-text="fmt(row.time)"></span></td>
+                                        <td class="p-4 flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-xl bg-slate-200 overflow-hidden"><img :src="'https://i.pravatar.cc/150?u=' + row.avatar" class="w-full h-full object-cover"></div>
+                                            <span x-text="lang==='fa' ? row.repFa : row.repEn"></span>
+                                        </td>
+                                        <td class="p-4 text-slate-500" x-text="lang==='fa' ? row.prodFa : row.prodEn"></td>
+                                        <td class="p-4">
+                                            <span x-show="row.status==='confirmed'" class="inline-flex items-center text-teal-700 bg-teal-50 px-3 py-1.5 rounded-lg text-xs font-bold border border-teal-200"><i class="fa-solid fa-check mr-1 ml-1"></i><span x-show="lang==='fa'">تایید پیامکی</span><span x-show="lang==='en'" x-cloak>SMS Confirmed</span></span>
+                                            <span x-show="row.status==='cancelled'" class="inline-flex items-center text-red-700 bg-red-50 px-3 py-1.5 rounded-lg text-xs font-bold border border-red-200"><i class="fa-solid fa-xmark mr-1 ml-1"></i><span x-show="lang==='fa'">لغو شده</span><span x-show="lang==='en'" x-cloak>Cancelled</span></span>
+                                        </td>
+                                        <td class="p-4">
+                                            <button x-show="row.scores" @click="row.open = !row.open" class="flex items-center gap-2 text-slate-700 hover:text-teal-600">
+                                                <span class="font-bold num" x-text="row.overall"></span>
+                                                <i class="fa-solid fa-star text-amber-400 text-xs"></i>
+                                                <i class="fa-solid text-xs text-slate-400" :class="row.open ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                            </button>
+                                            <span x-show="!row.scores" class="text-slate-300 text-xs font-bold">—</span>
+                                        </td>
+                                    </tr>
+                                    <tr x-show="row.open" x-cloak>
+                                        <td colspan="5" class="p-0">
+                                            <div class="bg-slate-50 border-t border-b border-slate-100 px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                                                <template x-if="row.scores">
+                                                    <template x-for="[key, val] in Object.entries(row.scores || {})" :key="key">
+                                                        <div class="bg-white rounded-xl border border-slate-100 p-3 text-center">
+                                                            <div class="text-[11px] font-bold text-slate-500 mb-1">
+                                                                <span x-show="key==='knowledge'"><span x-show="lang==='fa'">دانش محصول</span><span x-show="lang==='en'" x-cloak>Product Knowledge</span></span>
+                                                                <span x-show="key==='punctuality'"><span x-show="lang==='fa'">وقت‌شناسی</span><span x-show="lang==='en'" x-cloak>Punctuality</span></span>
+                                                                <span x-show="key==='professionalism'"><span x-show="lang==='fa'">رفتار حرفه‌ای</span><span x-show="lang==='en'" x-cloak>Professionalism</span></span>
+                                                                <span x-show="key==='followup'"><span x-show="lang==='fa'">پیگیری و پاسخگویی</span><span x-show="lang==='en'" x-cloak>Follow-up</span></span>
+                                                            </div>
+                                                            <div class="flex justify-center gap-0.5 text-amber-400 text-sm">
+                                                                <template x-for="n in [1,2,3,4,5]" :key="n">
+                                                                    <i class="fa-solid fa-star" :class="val >= n ? 'text-amber-400' : 'text-slate-200'"></i>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </template>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ TAB 4: GUIDE ============ -->
+            <div x-show="activeTab === 'guide'" x-cloak class="glass p-8 rounded-[2.5rem] shadow-sm border border-white bg-white/40 max-w-2xl mx-auto">
+                <h3 class="text-2xl font-bold mb-6 text-slate-800"><span x-show="lang === 'fa'">راهنمای تایید ویزیت</span><span x-show="lang === 'en'" x-cloak>Verification Guide</span></h3>
+                <div class="bg-blue-50 p-6 rounded-3xl border border-blue-100 mb-4">
+                    <p class="text-slate-700 leading-relaxed font-bold text-lg"><span x-show="lang === 'fa'">هنگام مراجعه نماینده علمی، یک کد تایید (OTP) پیامک می‌شود. کد را برای نماینده بخوانید.</span><span x-show="lang === 'en'" x-cloak>When Med-Rep visits, an OTP SMS is sent. Read it to them.</span></p>
+                </div>
+                <div class="bg-teal-50 p-6 rounded-3xl border border-teal-100">
+                    <p class="text-slate-700 leading-relaxed font-bold"><span x-show="lang === 'fa'">پس از هر ویزیت، می‌توانید به نماینده امتیاز دهید. این امتیاز در پرونده عملکرد نماینده نزد سازمان و شرکت دارویی ثبت می‌شود.</span><span x-show="lang === 'en'" x-cloak>After each visit you can rate the rep. This rating is recorded in the rep's performance file.</span></p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="mt-auto py-8 border-t border-white text-center text-slate-500 relative z-10 glass">
+        <div class="container mx-auto font-medium">
+            <p>
+                <span x-show="lang === 'fa'">&copy; 2026 پلتفرم SIVRAS. تمامی حقوق محفوظ است.</span>
+                <span x-show="lang === 'en'" x-cloak>&copy; 2026 SIVRAS Platform. All rights reserved.</span>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

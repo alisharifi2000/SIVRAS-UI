@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html x-data="{ lang: 'fa' }" :lang="lang" :dir="lang === 'fa' ? 'rtl' : 'ltr'">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIVRAS | سیوراس - پلتفرم مدیریت نمایندگان علمی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body{font-family:'IRANSans','Vazirmatn',sans-serif;background-color:#f8fafc;}
+        .glass{background:rgba(255,255,255,.75);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.5);}
+        [x-cloak]{display:none!important;}
+        .stat-count{font-variant-numeric:tabular-nums;}
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen relative overflow-x-hidden">
+    <!-- Background gradients -->
+    <div class="fixed top-0 left-0 w-[600px] h-[600px] bg-teal-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0"></div>
+    <div class="fixed bottom-0 right-0 w-[600px] h-[600px] bg-blue-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 translate-x-1/2 translate-y-1/2 pointer-events-none z-0"></div>
+
+    <header class="glass shadow-sm w-full sticky top-0 z-50 border-b border-white">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600 tracking-tight">SIVRAS</h1>
+                <div class="hidden md:block w-px h-6 bg-slate-300 mx-2"></div>
+                <span class="hidden md:inline-block text-sm font-bold text-slate-500">
+                    <span x-show="lang === 'fa'">پلتفرم جامع مدیریت نمایندگان علمی</span>
+                    <span x-show="lang === 'en'" x-cloak>Enterprise Med-Rep Management Platform</span>
+                </span>
+            </div>
+            <nav class="flex gap-4 items-center">
+                <button @click="lang = lang === 'fa' ? 'en' : 'fa'" class="flex items-center gap-2 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 transition-colors px-4 py-2 rounded-xl border border-teal-200 shadow-sm">
+                    <i class="fa-solid fa-language text-lg"></i>
+                    <span x-text="lang === 'fa' ? 'English' : 'فارسی'"></span>
+                </button>
+                <a href="login.html" class="inline-flex items-center justify-center bg-slate-800 text-white px-6 py-2 rounded-xl font-bold shadow-md hover:bg-slate-700 transition-all text-sm">
+                    <span x-show="lang === 'fa'">ورود به سیستم</span>
+                    <span x-show="lang === 'en'" x-cloak>System Login</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-10 relative z-10 flex-grow">
+        <div class="flex flex-col items-center justify-center text-center py-16 lg:py-20">
+            <div class="inline-block bg-teal-50 border border-teal-100 text-teal-700 px-4 py-1.5 rounded-full text-sm font-bold mb-6 shadow-sm">
+                <span x-show="lang === 'fa'">نسخه ۱.۰ پلتفرم SIVRAS</span>
+                <span x-show="lang === 'en'" x-cloak>SIVRAS Platform Version 1.0</span>
+            </div>
+            <h2 class="text-5xl lg:text-7xl font-black mb-8 tracking-tight text-slate-800 leading-tight">
+                <span x-show="lang === 'fa'">راهکار جامع و یکپارچه ارتباط <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600">پزشک و صنعت دارو</span></span>
+                <span x-show="lang === 'en'" x-cloak>The Enterprise Solution for <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600">Pharma & Healthcare</span></span>
+            </h2>
+            <p class="text-xl text-slate-600 max-w-3xl mb-12 font-medium leading-relaxed">
+                <span x-show="lang === 'fa'">پلتفرمی پیشرفته جهت تسهیل ارتباط نمایندگان علمی (Med-Reps) با پزشکان، مدیریت بهینه اسناد و عملکرد سازمانهای دارویی، و ارائه داشبوردهای هوشمند برای تصمیمگیری استراتژیک.</span>
+                <span x-show="lang === 'en'" x-cloak>An advanced platform designed to streamline Med-Rep interactions with healthcare professionals, optimize pharmaceutical workflows, and provide intelligent dashboards for strategic decision-making.</span>
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="login.html" class="inline-flex items-center justify-center bg-gradient-to-r from-teal-500 to-blue-600 text-white px-8 py-4 rounded-2xl font-bold shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all text-lg">
+                    <span x-show="lang === 'fa'">درخواست دمو و ثبتنام</span>
+                    <span x-show="lang === 'en'" x-cloak>Request Demo & Sign Up</span>
+                </a>
+                <a href="#features" class="inline-flex items-center justify-center bg-white text-slate-700 border border-slate-200 px-8 py-4 rounded-2xl font-bold hover:bg-slate-50 shadow-sm transition-all text-lg">
+                    <span x-show="lang === 'fa'">امکانات و معماری سیستم</span>
+                    <span x-show="lang === 'en'" x-cloak>Features & System Architecture</span>
+                </a>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-16 w-full max-w-6xl">
+                <div class="glass p-6 rounded-3xl border border-white bg-white/50 shadow-sm">
+                    <div class="text-3xl font-black text-teal-600 stat-count"><span x-show="lang==='fa'">۳,۱۲۰+</span><span x-show="lang==='en'" x-cloak>3,120+</span></div>
+                    <div class="text-xs font-bold text-slate-500 mt-2"><span x-show="lang==='fa'">نماینده فعال در سیستم</span><span x-show="lang==='en'" x-cloak>Active Med-Reps</span></div>
+                </div>
+                <div class="glass p-6 rounded-3xl border border-white bg-white/50 shadow-sm">
+                    <div class="text-3xl font-black text-blue-600 stat-count"><span x-show="lang==='fa'">۸,۹۴۰+</span><span x-show="lang==='en'" x-cloak>8,940+</span></div>
+                    <div class="text-xs font-bold text-slate-500 mt-2"><span x-show="lang==='fa'">پزشک عضو شبکه</span><span x-show="lang==='en'" x-cloak>Network Doctors</span></div>
+                </div>
+                <div class="glass p-6 rounded-3xl border border-white bg-white/50 shadow-sm">
+                    <div class="text-3xl font-black text-indigo-600 stat-count"><span x-show="lang==='fa'">۶۴</span><span x-show="lang==='en'" x-cloak>64</span></div>
+                    <div class="text-xs font-bold text-slate-500 mt-2"><span x-show="lang==='fa'">شرکت داروسازی همکار</span><span x-show="lang==='en'" x-cloak>Partner Pharma Orgs</span></div>
+                </div>
+                <div class="glass p-6 rounded-3xl border border-white bg-white/50 shadow-sm">
+                    <div class="text-3xl font-black text-orange-600 stat-count"><span x-show="lang==='fa'">۳۱</span><span x-show="lang==='en'" x-cloak>31</span></div>
+                    <div class="text-xs font-bold text-slate-500 mt-2"><span x-show="lang==='fa'">استان تحت پوشش کشوری</span><span x-show="lang==='en'" x-cloak>Provinces Covered</span></div>
+                </div>
+                <div class="glass p-6 rounded-3xl border border-white bg-white/50 shadow-sm">
+                    <div class="text-3xl font-black text-rose-600 stat-count"><span x-show="lang==='fa'">۱۴۵,۰۰۰+</span><span x-show="lang==='en'" x-cloak>145,000+</span></div>
+                    <div class="text-xs font-bold text-slate-500 mt-2"><span x-show="lang==='fa'">ویزیت ثبتشده (ماهانه)</span><span x-show="lang==='en'" x-cloak>Monthly Logged Visits</span></div>
+                </div>
+                <div class="glass p-6 rounded-3xl border border-white bg-white/50 shadow-sm">
+                    <div class="text-3xl font-black text-emerald-600 stat-count"><span x-show="lang==='fa'">۹۸۰+</span><span x-show="lang==='en'" x-cloak>980+</span></div>
+                    <div class="text-xs font-bold text-slate-500 mt-2"><span x-show="lang==='fa'">محصول دارویی ثبتشده</span><span x-show="lang==='en'" x-cloak>Registered Products</span></div>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div id="features" class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24 w-full max-w-6xl" :class="lang === 'fa' ? 'text-right' : 'text-left'">
+                <div class="glass p-10 rounded-[2.5rem] shadow-xl hover:-translate-y-2 transition-transform duration-300 border border-white bg-white/40">
+                    <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-500 text-3xl mb-6 shadow-inner"><i class="fas fa-user-md"></i></div>
+                    <h3 class="text-2xl font-extrabold mb-3 text-slate-800">
+                        <span x-show="lang === 'fa'">پورتال امن پزشکان</span>
+                        <span x-show="lang === 'en'" x-cloak>Secure Doctor Portal</span>
+                    </h3>
+                    <p class="text-slate-600 font-medium leading-relaxed">
+                        <span x-show="lang === 'fa'">دسترسی آنی به کاتالوگهای دارویی جدید، بررسی سوابق ویزیتهای انجام شده، و سیستم احراز هویت پیامکی (OTP) برای تایید شفاف عملکرد نمایندگان.</span>
+                        <span x-show="lang === 'en'" x-cloak>Instant access to new pharmaceutical catalogs, review of visit history, and an OTP SMS authentication system for transparent visit verification.</span>
+                    </p>
+                </div>
+                <div class="glass p-10 rounded-[2.5rem] shadow-xl hover:-translate-y-2 transition-transform duration-300 border border-white bg-white/40">
+                    <div class="w-16 h-16 bg-teal-100 rounded-2xl flex items-center justify-center text-teal-500 text-3xl mb-6 shadow-inner"><i class="fas fa-briefcase-medical"></i></div>
+                    <h3 class="text-2xl font-extrabold mb-3 text-slate-800">
+                        <span x-show="lang === 'fa'">اتوماسیون نمایندگان علمی</span>
+                        <span x-show="lang === 'en'" x-cloak>Med-Rep Automation</span>
+                    </h3>
+                    <p class="text-slate-600 font-medium leading-relaxed">
+                        <span x-show="lang === 'fa'">مدیریت کارتابل اسناد، شرکت در آزمونهای تخصصی آنلاین، ارزیابیهای مستمر و ثبت لحظهای (Real-time) ویزیتها با قابلیت گزارشگیری مالی و پورسانت.</span>
+                        <span x-show="lang === 'en'" x-cloak>Manage document workflows, participate in specialized online exams, undergo continuous evaluations, and log real-time visits with financial commission reporting.</span>
+                    </p>
+                </div>
+                <div class="glass p-10 rounded-[2.5rem] shadow-xl hover:-translate-y-2 transition-transform duration-300 border border-white bg-white/40">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-500 text-3xl mb-6 shadow-inner"><i class="fas fa-building"></i></div>
+                    <h3 class="text-2xl font-extrabold mb-3 text-slate-800">
+                        <span x-show="lang === 'fa'">داشبورد هوشمند سازمانها</span>
+                        <span x-show="lang === 'en'" x-cloak>Intelligent Org Dashboard</span>
+                    </h3>
+                    <p class="text-slate-600 font-medium leading-relaxed">
+                        <span x-show="lang === 'fa'">پلتفرم اختصاصی جهت مدیریت سبد دارویی، پایش دقیق شاخصهای عملکردی (KPIs) نمایندگان و دریافت گزارشهای پیشرفته تحلیلی از سطح بازار.</span>
+                        <span x-show="lang === 'en'" x-cloak>A dedicated platform to manage product portfolios, precisely monitor Med-Rep KPIs, and receive advanced analytical reports directly from the market.</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Roles Section -->
+            <div class="w-full max-w-6xl mt-16 glass p-10 rounded-[2.5rem] border border-white bg-white/40" :class="lang === 'fa' ? 'text-right' : 'text-left'">
+                <h3 class="text-2xl font-extrabold mb-8 text-slate-800 text-center">
+                    <span x-show="lang==='fa'">ساختار سازمانی و دسترسیهای یکپارچه در سیستم</span><span x-show="lang==='en'" x-cloak>Unified Organizational Structure & Roles</span>
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <a href="superadmin_dashboard.html" class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm hover:shadow-md hover:border-blue-200 transition-all cursor-pointer group">
+                        <i class="fa-solid fa-crown text-blue-500 text-3xl mb-3 group-hover:scale-110 transition-transform"></i>
+                        <div class="text-sm font-bold text-slate-600"><span x-show="lang==='fa'">سوپر ادمین</span><span x-show="lang==='en'" x-cloak>Super Admin</span></div>
+                    </a>
+                    <a href="provincial_admin_dashboard.html" class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm hover:shadow-md hover:border-purple-200 transition-all cursor-pointer group">
+                        <i class="fa-solid fa-map-location-dot text-purple-500 text-3xl mb-3 group-hover:scale-110 transition-transform"></i>
+                        <div class="text-sm font-bold text-slate-600"><span x-show="lang==='fa'">ادمین استانی</span><span x-show="lang==='en'" x-cloak>Provincial Admin</span></div>
+                    </a>
+                    <a href="hq_operator_dashboard.html" class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm hover:shadow-md hover:border-orange-200 transition-all cursor-pointer group">
+                        <i class="fa-solid fa-headset text-orange-500 text-3xl mb-3 group-hover:scale-110 transition-transform"></i>
+                        <div class="text-sm font-bold text-slate-600"><span x-show="lang==='fa'">اپراتور ستاد</span><span x-show="lang==='en'" x-cloak>HQ Operator</span></div>
+                    </a>
+                    <a href="medrep_dashboard.html" class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm hover:shadow-md hover:border-teal-200 transition-all cursor-pointer group">
+                        <i class="fa-solid fa-briefcase-medical text-teal-500 text-3xl mb-3 group-hover:scale-110 transition-transform"></i>
+                        <div class="text-sm font-bold text-slate-600"><span x-show="lang==='fa'">نماینده علمی</span><span x-show="lang==='en'" x-cloak>Med-Rep</span></div>
+                    </a>
+                    <a href="organization_rep_dashboard.html" class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm hover:shadow-md hover:border-yellow-300 transition-all cursor-pointer group">
+                        <i class="fa-solid fa-building text-yellow-500 text-3xl mb-3 group-hover:scale-110 transition-transform"></i>
+                        <div class="text-sm font-bold text-slate-600"><span x-show="lang==='fa'">نماینده سازمان</span><span x-show="lang==='en'" x-cloak>Org-Rep</span></div>
+                    </a>
+                    <a href="doctor_dashboard.html" class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm hover:shadow-md hover:border-rose-200 transition-all cursor-pointer group">
+                        <i class="fa-solid fa-user-doctor text-rose-500 text-3xl mb-3 group-hover:scale-110 transition-transform"></i>
+                        <div class="text-sm font-bold text-slate-600"><span x-show="lang==='fa'">پزشک</span><span x-show="lang==='en'" x-cloak>Doctor</span></div>
+                    </a>
+                </div>
+                <div class="mt-6 text-center text-xs font-bold text-slate-400">
+                    <span x-show="lang === 'fa'">* برای مشاهده محیط کاربری هر نقش روی آن کلیک کنید</span>
+                    <span x-show="lang === 'en'" x-cloak>* Click on any role to view its dedicated dashboard environment</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-auto py-8 border-t border-white text-center text-slate-500 relative z-10 glass">
+        <div class="container mx-auto font-medium text-sm flex flex-col md:flex-row justify-between items-center px-4">
+            <p>
+                <span x-show="lang === 'fa'">&copy; 2026 پلتفرم جامع سیوراس (SIVRAS). تمامی حقوق محفوظ است.</span>
+                <span x-show="lang === 'en'" x-cloak>&copy; 2026 Comprehensive SIVRAS Platform. All rights reserved.</span>
+            </p>
+            <div class="flex gap-4 mt-4 md:mt-0">
+                <a href="#" class="hover:text-teal-600 transition-colors"><span x-show="lang === 'fa'">حریم خصوصی</span><span x-show="lang === 'en'" x-cloak>Privacy Policy</span></a>
+                <a href="#" class="hover:text-teal-600 transition-colors"><span x-show="lang === 'fa'">شرایط استفاده</span><span x-show="lang === 'en'" x-cloak>Terms of Service</span></a>
+                <a href="#" class="hover:text-teal-600 transition-colors"><span x-show="lang === 'fa'">تماس با پشتیبانی</span><span x-show="lang === 'en'" x-cloak>Contact Support</span></a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

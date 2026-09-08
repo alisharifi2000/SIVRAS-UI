@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html x-data="{ lang: 'fa' }" :lang="lang" :dir="lang === 'fa' ? 'rtl' : 'ltr'">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIVRAS - HQ Operator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body{font-family:'IRANSans','Vazirmatn',sans-serif;background-color:#f8fafc;}
+        .glass{background:rgba(255,255,255,.75);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.5);}
+        [x-cloak]{display:none!important;}
+        .stat-count{font-variant-numeric:tabular-nums;}
+        ::-webkit-scrollbar{height:6px;width:6px;}
+        ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px;}
+        .role-chip{transition:all .15s ease;}
+        .role-chip.off{opacity:.45;filter:grayscale(.4);}
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen relative overflow-x-hidden">
+    <div class="fixed top-0 left-0 w-[600px] h-[600px] bg-teal-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0"></div>
+    <div class="fixed bottom-0 right-0 w-[600px] h-[600px] bg-blue-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 translate-x-1/2 translate-y-1/2 pointer-events-none z-0"></div>
+
+    <header class="glass shadow-sm w-full sticky top-0 z-50 border-b border-white">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600 tracking-tight">SIVRAS</h1>
+                <div class="hidden md:block w-px h-6 bg-slate-300 mx-2"></div>
+                <span class="hidden md:inline-block text-sm font-bold text-slate-500">
+                    <span x-show="lang === 'fa'">پلتفرم جامع مدیریت نمایندگان علمی</span>
+                    <span x-show="lang === 'en'" x-cloak>Comprehensive Med-Rep Platform</span>
+                </span>
+            </div>
+            <nav class="flex gap-3 items-center">
+                <button @click="lang = lang === 'fa' ? 'en' : 'fa'" class="flex items-center gap-2 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 transition-colors px-4 py-2 rounded-xl border border-teal-200 shadow-sm">
+                    <i class="fa-solid fa-language text-lg"></i>
+                    <span x-text="lang === 'fa' ? 'English' : 'فارسی'"></span>
+                </button>
+                <button class="relative text-slate-500 hover:text-slate-800 bg-white/60 w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">9</span>
+                </button>
+                <div class="flex items-center gap-2 bg-white/60 px-3 py-1.5 rounded-xl border border-slate-200">
+                    <img src="https://i.pravatar.cc/80?u=hqop" class="w-8 h-8 rounded-lg object-cover">
+                    <span class="text-sm font-bold text-slate-700 hidden sm:inline">
+                        <span x-show="lang === 'fa'">فاطمه نوری</span><span x-show="lang === 'en'" x-cloak>Fatemeh Nouri</span>
+                    </span>
+                </div>
+                <span class="text-sm font-bold text-orange-800 bg-orange-100 px-4 py-2 rounded-xl border border-orange-200 shadow-sm"><i class="fa-solid fa-headset mr-1 ml-1"></i> HQ Operator</span>
+                <a href="index.html" class="text-red-500 hover:text-red-600 text-sm font-bold bg-white/50 px-4 py-2 rounded-xl border border-red-100 hover:bg-red-50 transition-colors">
+                    <i class="fa-solid fa-sign-out-alt"></i> <span x-show="lang === 'fa'">خروج</span><span x-show="lang === 'en'" x-cloak>Logout</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 relative z-10 flex-grow"
+          x-data="{
+              activeTab: 'overview',
+              roles: { docs:true, edu:true, org:false, finance:false, support:true }
+          }">
+
+        <!-- Multi-role indicator strip -->
+        <div class="glass rounded-2xl p-4 mb-6 border border-white bg-white/60 flex flex-wrap items-center gap-3">
+            <span class="text-xs font-bold text-slate-400 shrink-0"><span x-show="lang==='fa'">حوزه‌های فعالیت این اپراتور (قابل تخصیص چندگانه):</span><span x-show="lang==='en'" x-cloak>This operator's activity domains (multi-assignable):</span></span>
+            <button @click="roles.docs = !roles.docs" class="role-chip text-xs font-bold px-3 py-1.5 rounded-lg border" :class="[roles.docs ? 'bg-blue-100 text-blue-700 border-blue-200' : 'off bg-slate-100 text-slate-500 border-slate-200']"><i class="fa-solid fa-file-lines mr-1 ml-1"></i><span x-show="lang==='fa'">مدارک</span><span x-show="lang==='en'" x-cloak>Documents</span></button>
+            <button @click="roles.edu = !roles.edu" class="role-chip text-xs font-bold px-3 py-1.5 rounded-lg border" :class="[roles.edu ? 'bg-purple-100 text-purple-700 border-purple-200' : 'off bg-slate-100 text-slate-500 border-slate-200']"><i class="fa-solid fa-graduation-cap mr-1 ml-1"></i><span x-show="lang==='fa'">آموزش</span><span x-show="lang==='en'" x-cloak>Education</span></button>
+            <button @click="roles.org = !roles.org" class="role-chip text-xs font-bold px-3 py-1.5 rounded-lg border" :class="[roles.org ? 'bg-indigo-100 text-indigo-700 border-indigo-200' : 'off bg-slate-100 text-slate-500 border-slate-200']"><i class="fa-solid fa-building mr-1 ml-1"></i><span x-show="lang==='fa'">سازمان‌ها</span><span x-show="lang==='en'" x-cloak>Organizations</span></button>
+            <button @click="roles.finance = !roles.finance" class="role-chip text-xs font-bold px-3 py-1.5 rounded-lg border" :class="[roles.finance ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'off bg-slate-100 text-slate-500 border-slate-200']"><i class="fa-solid fa-sack-dollar mr-1 ml-1"></i><span x-show="lang==='fa'">مالی</span><span x-show="lang==='en'" x-cloak>Finance</span></button>
+            <button @click="roles.support = !roles.support" class="role-chip text-xs font-bold px-3 py-1.5 rounded-lg border" :class="[roles.support ? 'bg-rose-100 text-rose-700 border-rose-200' : 'off bg-slate-100 text-slate-500 border-slate-200']"><i class="fa-solid fa-ticket mr-1 ml-1"></i><span x-show="lang==='fa'">پشتیبانی</span><span x-show="lang==='en'" x-cloak>Support</span></button>
+            <span class="text-[11px] font-medium text-slate-400 mr-auto ml-auto"><i class="fa-solid fa-circle-info mr-1 ml-1"></i><span x-show="lang==='fa'">کلیک کنید تا نمایش تب‌های مرتبط با هر نقش را ببینید — در نسخه نهایی این‌ها توسط سوپر ادمین تخصیص داده می‌شود.</span><span x-show="lang==='en'" x-cloak>Click to preview tabs per role — in production these are assigned by the Super Admin.</span></span>
+        </div>
+
+        <div class="flex gap-6 flex-col md:flex-row">
+
+            <!-- ===== SIDEBAR ===== -->
+            <aside class="w-full md:w-64 glass rounded-[2rem] p-4 shadow-sm h-fit border border-white bg-white/60 md:sticky md:top-24">
+                <nav class="flex flex-col gap-1.5">
+                    <button @click="activeTab = 'overview'" :class="activeTab === 'overview' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-chart-pie w-5 text-center"></i> <span x-show="lang === 'fa'">آمار و عملکرد کلی</span><span x-show="lang === 'en'" x-cloak>Overview</span>
+                    </button>
+                    <template x-if="roles.docs">
+                        <button @click="activeTab = 'docs'" :class="activeTab === 'docs' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full relative" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                            <i class="fa-solid fa-file-lines w-5 text-center text-blue-500"></i> <span x-show="lang === 'fa'">کارتابل مدارک</span><span x-show="lang === 'en'" x-cloak>Documents Queue</span>
+                            <span class="absolute bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center" :class="lang==='fa' ? 'left-2' : 'right-2'">42</span>
+                        </button>
+                    </template>
+                    <template x-if="roles.edu">
+                        <button @click="activeTab = 'edu'" :class="activeTab === 'edu' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                            <i class="fa-solid fa-graduation-cap w-5 text-center text-purple-500"></i> <span x-show="lang === 'fa'">آموزش، آزمون و مصاحبه</span><span x-show="lang === 'en'" x-cloak>Education & Exams</span>
+                        </button>
+                    </template>
+                    <template x-if="roles.org">
+                        <button @click="activeTab = 'org'" :class="activeTab === 'org' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                            <i class="fa-solid fa-building w-5 text-center text-indigo-500"></i> <span x-show="lang === 'fa'">سازمان‌ها و محصولات</span><span x-show="lang === 'en'" x-cloak>Organizations & Products</span>
+                        </button>
+                    </template>
+                    <template x-if="roles.finance">
+                        <button @click="activeTab = 'finance'" :class="activeTab === 'finance' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                            <i class="fa-solid fa-sack-dollar w-5 text-center text-emerald-500"></i> <span x-show="lang === 'fa'">گزارش‌های مالی</span><span x-show="lang === 'en'" x-cloak>Finance</span>
+                        </button>
+                    </template>
+                    <template x-if="roles.support">
+                        <button @click="activeTab = 'support'" :class="activeTab === 'support' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full relative" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                            <i class="fa-solid fa-ticket w-5 text-center text-rose-500"></i> <span x-show="lang === 'fa'">تیکت‌های پشتیبانی</span><span x-show="lang === 'en'" x-cloak>Support Tickets</span>
+                            <span class="absolute bg-amber-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center" :class="lang==='fa' ? 'left-2' : 'right-2'">15</span>
+                        </button>
+                    </template>
+                </nav>
+            </aside>
+
+            <div class="flex-1 space-y-6 min-w-0">
+
+                <!-- ===== OVERVIEW TAB ===== -->
+                <div x-show="activeTab === 'overview'">
+                    <h2 class="text-2xl font-black text-slate-800 mb-5"><span x-show="lang==='fa'">نمای کلی عملیات ستاد</span><span x-show="lang==='en'" x-cloak>HQ Operations Overview</span></h2>
+
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="glass p-6 rounded-3xl text-center border border-white bg-white/60">
+                            <div class="w-11 h-11 mx-auto bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 mb-2"><i class="fa-solid fa-file-lines"></i></div>
+                            <div class="text-4xl font-black text-blue-600">42</div>
+                            <div class="text-slate-500 font-bold text-sm mt-1"><span x-show="lang==='fa'">مدارک در انتظار بررسی</span><span x-show="lang==='en'" x-cloak>Docs Pending Review</span></div>
+                        </div>
+                        <div class="glass p-6 rounded-3xl text-center border border-white bg-white/60">
+                            <div class="w-11 h-11 mx-auto bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 mb-2"><i class="fa-solid fa-graduation-cap"></i></div>
+                            <div class="text-4xl font-black text-purple-600">15</div>
+                            <div class="text-slate-500 font-bold text-sm mt-1"><span x-show="lang==='fa'">مصاحبه برنامه‌ریزی نشده</span><span x-show="lang==='en'" x-cloak>Interviews To Schedule</span></div>
+                        </div>
+                        <div class="glass p-6 rounded-3xl text-center border border-white bg-white/60">
+                            <div class="w-11 h-11 mx-auto bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 mb-2"><i class="fa-solid fa-building"></i></div>
+                            <div class="text-4xl font-black text-indigo-600">24</div>
+                            <div class="text-slate-500 font-bold text-sm mt-1"><span x-show="lang==='fa'">سازمان‌های همکار فعال</span><span x-show="lang==='en'" x-cloak>Active Partner Orgs</span></div>
+                        </div>
+                        <div class="glass p-6 rounded-3xl text-center border border-white bg-white/60">
+                            <div class="w-11 h-11 mx-auto bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600 mb-2"><i class="fa-solid fa-ticket"></i></div>
+                            <div class="text-4xl font-black text-rose-600">15</div>
+                            <div class="text-slate-500 font-bold text-sm mt-1"><span x-show="lang==='fa'">تیکت باز پشتیبانی</span><span x-show="lang==='en'" x-cloak>Open Support Tickets</span></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
+                        <div class="lg:col-span-2 glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-extrabold text-slate-800"><span x-show="lang==='fa'">روند پردازش کارتابل مدارک</span><span x-show="lang==='en'" x-cloak>Document Processing Trend</span></h3>
+                                <span class="text-xs font-bold text-slate-400"><span x-show="lang==='fa'">۶ ماه اخیر</span><span x-show="lang==='en'" x-cloak>Last 6 months</span></span>
+                            </div>
+                            <canvas id="docsTrendChart" height="110"></canvas>
+                        </div>
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <h3 class="font-extrabold text-slate-800 mb-4"><span x-show="lang==='fa'">توزیع تیکت به تفکیک نوع</span><span x-show="lang==='en'" x-cloak>Tickets by Category</span></h3>
+                            <canvas id="ticketCategoryChart" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60 text-center">
+                            <h3 class="font-extrabold text-slate-800 mb-3"><span x-show="lang==='fa'">نرخ قبولی آزمون دانش</span><span x-show="lang==='en'" x-cloak>Exam Pass Rate</span></h3>
+                            <div class="text-4xl font-black text-emerald-600">86%</div>
+                            <p class="text-xs text-slate-400 mt-2"><span x-show="lang==='fa'">از ۱۱۰ آزمون برگزارشده این ماه</span><span x-show="lang==='en'" x-cloak>Of 110 exams held this month</span></p>
+                        </div>
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60 text-center">
+                            <h3 class="font-extrabold text-slate-800 mb-3"><span x-show="lang==='fa'">میانگین زمان بررسی مدرک</span><span x-show="lang==='en'" x-cloak>Avg Doc Review Time</span></h3>
+                            <div class="text-4xl font-black text-blue-600">6.4<span class="text-lg">h</span></div>
+                            <p class="text-xs text-slate-400 mt-2"><span x-show="lang==='fa'">هدف: کمتر از ۸ ساعت</span><span x-show="lang==='en'" x-cloak>Target: under 8 hours</span></p>
+                        </div>
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60 text-center">
+                            <h3 class="font-extrabold text-slate-800 mb-3"><span x-show="lang==='fa'">رضایت تیکت پشتیبانی</span><span x-show="lang==='en'" x-cloak>Ticket Satisfaction</span></h3>
+                            <div class="text-4xl font-black text-amber-500">4.7<i class="fa-solid fa-star text-xl mr-1 ml-1"></i></div>
+                            <p class="text-xs text-slate-400 mt-2"><span x-show="lang==='fa'">میانگین امتیاز ۲۱۰ تیکت بسته شده</span><span x-show="lang==='en'" x-cloak>Avg of 210 closed tickets</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== DOCUMENTS QUEUE TAB (Requirement Operator) ===== -->
+                <div x-show="activeTab === 'docs'" x-cloak class="space-y-5">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-3xl font-black text-amber-500">42</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">در انتظار بررسی</span><span x-show="lang==='en'" x-cloak>Pending</span></div></div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-3xl font-black text-emerald-600">18</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">تایید شده امروز</span><span x-show="lang==='en'" x-cloak>Approved Today</span></div></div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-3xl font-black text-red-500">5</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">رد شده امروز</span><span x-show="lang==='en'" x-cloak>Rejected Today</span></div></div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-3xl font-black text-blue-600">6.4h</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">میانگین زمان بررسی</span><span x-show="lang==='en'" x-cloak>Avg Review Time</span></div></div>
+                    </div>
+                    <div class="glass p-5 rounded-3xl shadow-sm border border-white bg-white/60 flex flex-wrap gap-3 justify-between items-center">
+                        <div class="flex gap-2 flex-wrap">
+                            <select class="border-2 border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-600">
+                                <option x-text="lang === 'fa' ? 'همه انواع مدرک' : 'All document types'"></option>
+                                <option x-text="lang === 'fa' ? 'کارت ملی / شناسنامه' : 'National ID / Birth Cert'"></option>
+                                <option x-text="lang === 'fa' ? 'گواهی عدم سوء پیشینه' : 'Criminal Record Certificate'"></option>
+                                <option x-text="lang === 'fa' ? 'مدرک تحصیلی' : 'Education Certificate'"></option>
+                            </select>
+                            <select class="border-2 border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-600">
+                                <option x-text="lang === 'fa' ? 'همه استان‌ها' : 'All provinces'"></option>
+                                <option>تهران</option><option>اصفهان</option><option>فارس</option>
+                            </select>
+                        </div>
+                        <div class="text-xs font-bold text-slate-500"><span x-show="lang==='fa'">صف پردازش: قدیمی‌ترین ابتدا</span><span x-show="lang==='en'" x-cloak>Queue order: oldest first</span></div>
+                    </div>
+                    <div class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60 space-y-3">
+                        <div class="bg-white p-4 rounded-xl border border-slate-100 flex flex-wrap justify-between items-center gap-3">
+                            <div class="flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=d1" class="w-10 h-10 rounded-lg object-cover"><div><div class="font-bold">علی رضایی <span class="text-amber-600 text-xs font-bold bg-amber-50 px-2 py-0.5 rounded mr-1"><span x-show="lang==='fa'">گواهی عدم سوء پیشینه</span><span x-show="lang==='en'" x-cloak>Criminal Record Cert</span></span></div><div class="text-xs text-slate-400"><span x-show="lang==='fa'">ارسال شده: ۲ ساعت پیش · تهران</span><span x-show="lang==='en'" x-cloak>Submitted 2h ago · Tehran</span></div></div></div>
+                            <div class="flex gap-2"><button class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-bold"><span x-show="lang==='fa'">مشاهده مدرک</span><span x-show="lang==='en'" x-cloak>View File</span></button><button class="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-lg text-sm font-bold"><span x-show="lang==='fa'">تایید</span><span x-show="lang==='en'" x-cloak>Approve</span></button><button class="bg-red-50 text-red-500 px-4 py-2 rounded-lg text-sm font-bold"><span x-show="lang==='fa'">رد</span><span x-show="lang==='en'" x-cloak>Reject</span></button></div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-100 flex flex-wrap justify-between items-center gap-3">
+                            <div class="flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=d2" class="w-10 h-10 rounded-lg object-cover"><div><div class="font-bold">مریم کریمی <span class="text-blue-600 text-xs font-bold bg-blue-50 px-2 py-0.5 rounded mr-1"><span x-show="lang==='fa'">کارت ملی و شناسنامه</span><span x-show="lang==='en'" x-cloak>National ID</span></span></div><div class="text-xs text-slate-400"><span x-show="lang==='fa'">ارسال شده: ۵ ساعت پیش · اصفهان</span><span x-show="lang==='en'" x-cloak>Submitted 5h ago · Isfahan</span></div></div></div>
+                            <div class="flex gap-2"><button class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-bold"><span x-show="lang==='fa'">مشاهده مدرک</span><span x-show="lang==='en'" x-cloak>View File</span></button><button class="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-lg text-sm font-bold"><span x-show="lang==='fa'">تایید</span><span x-show="lang==='en'" x-cloak>Approve</span></button><button class="bg-red-50 text-red-500 px-4 py-2 rounded-lg text-sm font-bold"><span x-show="lang==='fa'">رد</span><span x-show="lang==='en'" x-cloak>Reject</span></button></div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-100 flex flex-wrap justify-between items-center gap-3">
+                            <div class="flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=d3" class="w-10 h-10 rounded-lg object-cover"><div><div class="font-bold">سینا فرهادی <span class="text-red-500 text-xs font-bold bg-red-50 px-2 py-0.5 rounded mr-1"><span x-show="lang==='fa'">نقص قبلی - بازارسال</span><span x-show="lang==='en'" x-cloak>Re-submitted (fixed)</span></span></div><div class="text-xs text-slate-400"><span x-show="lang==='fa'">ارسال شده: ۱ روز پیش · شهریار</span><span x-show="lang==='en'" x-cloak>Submitted 1d ago · Shahriar</span></div></div></div>
+                            <div class="flex gap-2"><button class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-bold"><span x-show="lang==='fa'">مشاهده مدرک</span><span x-show="lang==='en'" x-cloak>View File</span></button><button class="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-lg text-sm font-bold"><span x-show="lang==='fa'">تایید</span><span x-show="lang==='en'" x-cloak>Approve</span></button><button class="bg-red-50 text-red-500 px-4 py-2 rounded-lg text-sm font-bold"><span x-show="lang==='fa'">رد</span><span x-show="lang==='en'" x-cloak>Reject</span></button></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== EDUCATION TAB ===== -->
+                <div x-show="activeTab === 'edu'" x-cloak class="space-y-5">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-3xl font-black text-purple-600">110</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">آزمون این ماه</span><span x-show="lang==='en'" x-cloak>Exams this month</span></div></div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-3xl font-black text-emerald-600">86%</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">نرخ قبولی</span><span x-show="lang==='en'" x-cloak>Pass rate</span></div></div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-3xl font-black text-amber-500">15</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">مصاحبه در انتظار زمان‌بندی</span><span x-show="lang==='en'" x-cloak>Interviews to schedule</span></div></div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-3xl font-black text-blue-600">3</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">کارگاه برنامه‌ریزی شده</span><span x-show="lang==='en'" x-cloak>Workshops scheduled</span></div></div>
+                    </div>
+
+                    <div class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60 overflow-x-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-extrabold text-slate-800 text-lg"><span x-show="lang==='fa'">بانک آزمون به تفکیک محصول</span><span x-show="lang==='en'" x-cloak>Exam Bank by Product</span></h3>
+                            <button class="bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow hover:bg-purple-700"><i class="fa-solid fa-plus mr-1 ml-1"></i><span x-show="lang==='fa'">سوال جدید</span><span x-show="lang==='en'" x-cloak>New Question</span></button>
+                        </div>
+                        <table class="w-full min-w-[640px]" :class="lang === 'fa' ? 'text-right' : 'text-left'">
+                            <thead class="bg-slate-100 text-slate-600 font-bold text-sm"><tr>
+                                <th class="p-4"><span x-show="lang === 'fa'">محصول</span><span x-show="lang === 'en'" x-cloak>Product</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">تعداد سوال</span><span x-show="lang === 'en'" x-cloak>Questions</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">آزمون‌شده (ماه)</span><span x-show="lang === 'en'" x-cloak>Tested (Month)</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">نرخ قبولی</span><span x-show="lang === 'en'" x-cloak>Pass Rate</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">وضعیت</span><span x-show="lang === 'en'" x-cloak>Status</span></th>
+                            </tr></thead>
+                            <tbody class="divide-y divide-slate-100 bg-white font-medium text-sm">
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold">کاردیوپلاس (Atorvastatin 20mg)</td><td class="p-4">25</td><td class="p-4">38</td><td class="p-4 text-emerald-600 font-bold">91%</td><td class="p-4"><span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">فعال</span><span x-show="lang==='en'" x-cloak>Active</span></span></td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold">گلوکوفارم (Metformin 500mg)</td><td class="p-4">20</td><td class="p-4">29</td><td class="p-4 text-emerald-600 font-bold">84%</td><td class="p-4"><span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">فعال</span><span x-show="lang==='en'" x-cloak>Active</span></span></td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold">لوزارکس (Losartan 50mg)</td><td class="p-4">18</td><td class="p-4">24</td><td class="p-4 text-amber-600 font-bold">78%</td><td class="p-4"><span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">فعال</span><span x-show="lang==='en'" x-cloak>Active</span></span></td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold">پنتوپرازول سبحان ۴۰</td><td class="p-4">—</td><td class="p-4">—</td><td class="p-4 text-slate-400">—</td><td class="p-4"><span class="bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">در حال تدوین</span><span x-show="lang==='en'" x-cloak>Drafting</span></span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <div class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60">
+                            <h3 class="font-extrabold text-slate-800 mb-4"><span x-show="lang==='fa'">مصاحبه‌های در انتظار زمان‌بندی</span><span x-show="lang==='en'" x-cloak>Interviews To Schedule</span></h3>
+                            <div class="space-y-3">
+                                <div class="bg-white p-4 rounded-xl border border-slate-100 flex justify-between items-center">
+                                    <div class="flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=iv1" class="w-9 h-9 rounded-lg object-cover"><div><div class="font-bold text-sm">امیر توکلی</div><div class="text-xs text-slate-400"><span x-show="lang==='fa'">آزمون دانش قبول شده - آماده مصاحبه</span><span x-show="lang==='en'" x-cloak>Exam passed - ready for interview</span></div></div></div>
+                                    <button class="bg-purple-50 text-purple-600 px-3 py-1.5 rounded-lg text-xs font-bold"><i class="fa-brands fa-google mr-1 ml-1"></i><span x-show="lang==='fa'">تنظیم جلسه</span><span x-show="lang==='en'" x-cloak>Schedule</span></button>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border border-slate-100 flex justify-between items-center">
+                                    <div class="flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=iv2" class="w-9 h-9 rounded-lg object-cover"><div><div class="font-bold text-sm">مریم کریمی</div><div class="text-xs text-slate-400"><span x-show="lang==='fa'">آزمون دانش قبول شده - آماده مصاحبه</span><span x-show="lang==='en'" x-cloak>Exam passed - ready for interview</span></div></div></div>
+                                    <button class="bg-purple-50 text-purple-600 px-3 py-1.5 rounded-lg text-xs font-bold"><i class="fa-brands fa-google mr-1 ml-1"></i><span x-show="lang==='fa'">تنظیم جلسه</span><span x-show="lang==='en'" x-cloak>Schedule</span></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60">
+                            <h3 class="font-extrabold text-slate-800 mb-4"><span x-show="lang==='fa'">جلسات مصاحبه برنامه‌ریزی شده</span><span x-show="lang==='en'" x-cloak>Scheduled Interview Sessions</span></h3>
+                            <div class="space-y-3">
+                                <div class="bg-white p-4 rounded-xl border border-slate-100 flex justify-between items-center">
+                                    <div><div class="font-bold text-sm">نگار اسدی</div><div class="text-xs text-slate-400"><i class="fa-brands fa-google mr-1 ml-1"></i>Google Meet · <span x-show="lang==='fa'">شنبه ۱۴:۰۰</span><span x-show="lang==='en'" x-cloak>Sat 14:00</span></div></div>
+                                    <span class="text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg"><span x-show="lang==='fa'">تایید شده</span><span x-show="lang==='en'" x-cloak>Confirmed</span></span>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border border-slate-100 flex justify-between items-center">
+                                    <div><div class="font-bold text-sm">کاوه رستمی</div><div class="text-xs text-slate-400"><i class="fa-brands fa-google mr-1 ml-1"></i>Google Meet · <span x-show="lang==='fa'">یکشنبه ۱۰:۳۰</span><span x-show="lang==='en'" x-cloak>Sun 10:30</span></div></div>
+                                    <span class="text-amber-600 text-xs font-bold bg-amber-50 px-2 py-1 rounded-lg"><span x-show="lang==='fa'">در انتظار تایید</span><span x-show="lang==='en'" x-cloak>Awaiting confirm</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== ORGANIZATIONS TAB ===== -->
+                <div x-show="activeTab === 'org'" x-cloak class="space-y-5">
+                    <div class="flex justify-between items-center flex-wrap gap-3">
+                        <h2 class="text-xl font-black text-slate-800"><span x-show="lang==='fa'">مدیریت سازمان‌ها و محصولات</span><span x-show="lang==='en'" x-cloak>Organizations & Product Management</span></h2>
+                        <button class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow hover:bg-indigo-700"><i class="fa-solid fa-plus mr-1 ml-1"></i><span x-show="lang==='fa'">ثبت سازمان جدید</span><span x-show="lang==='en'" x-cloak>Register Organization</span></button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="glass p-6 rounded-3xl border border-white bg-white/60 flex items-start gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 text-2xl shrink-0"><i class="fa-solid fa-building"></i></div>
+                            <div class="flex-1">
+                                <div class="flex justify-between"><h4 class="font-extrabold text-slate-800"><span x-show="lang==='fa'">داروسازی البرز</span><span x-show="lang==='en'" x-cloak>Alborz Pharma</span></h4><span class="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-1 rounded-lg"><span x-show="lang==='fa'">فعال</span><span x-show="lang==='en'" x-cloak>Active</span></span></div>
+                                <p class="text-xs text-slate-500 mt-1 mb-3"><span x-show="lang==='fa'">۱۲ محصول ثبت‌شده · مدیر حساب: نوری</span><span x-show="lang==='en'" x-cloak>12 registered products · Account Mgr: Nouri</span></p>
+                                <div class="flex gap-4 text-sm font-bold text-slate-600"><span><i class="fa-solid fa-pills text-blue-400 mr-1"></i>12 <span x-show="lang==='fa'">محصول</span></span><span><i class="fa-solid fa-route text-teal-400 mr-1"></i>420 <span x-show="lang==='fa'">ویزیت/ماه</span></span></div>
+                                <button class="mt-3 text-indigo-600 text-xs font-bold hover:underline"><span x-show="lang==='fa'">مدیریت محصولات</span><span x-show="lang==='en'" x-cloak>Manage Products</span></button>
+                            </div>
+                        </div>
+                        <div class="glass p-6 rounded-3xl border border-white bg-white/60 flex items-start gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-500 text-2xl shrink-0"><i class="fa-solid fa-building"></i></div>
+                            <div class="flex-1">
+                                <div class="flex justify-between"><h4 class="font-extrabold text-slate-800"><span x-show="lang==='fa'">سبحان دارو</span><span x-show="lang==='en'" x-cloak>Sobhan Darou</span></h4><span class="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-1 rounded-lg"><span x-show="lang==='fa'">فعال</span><span x-show="lang==='en'" x-cloak>Active</span></span></div>
+                                <p class="text-xs text-slate-500 mt-1 mb-3"><span x-show="lang==='fa'">۸ محصول ثبت‌شده · مدیر حساب: نوری</span><span x-show="lang==='en'" x-cloak>8 registered products · Account Mgr: Nouri</span></p>
+                                <div class="flex gap-4 text-sm font-bold text-slate-600"><span><i class="fa-solid fa-pills text-blue-400 mr-1"></i>8 <span x-show="lang==='fa'">محصول</span></span><span><i class="fa-solid fa-route text-teal-400 mr-1"></i>290 <span x-show="lang==='fa'">ویزیت/ماه</span></span></div>
+                                <button class="mt-3 text-indigo-600 text-xs font-bold hover:underline"><span x-show="lang==='fa'">مدیریت محصولات</span><span x-show="lang==='en'" x-cloak>Manage Products</span></button>
+                            </div>
+                        </div>
+                        <div class="glass p-6 rounded-3xl border border-white bg-white/60 flex items-start gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500 text-2xl shrink-0"><i class="fa-solid fa-building"></i></div>
+                            <div class="flex-1">
+                                <div class="flex justify-between"><h4 class="font-extrabold text-slate-800"><span x-show="lang==='fa'">داروسازی ابوریحان</span><span x-show="lang==='en'" x-cloak>Aburaihan Pharma</span></h4><span class="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-lg"><span x-show="lang==='fa'">در بررسی مدارک</span><span x-show="lang==='en'" x-cloak>Under Review</span></span></div>
+                                <p class="text-xs text-slate-500 mt-1 mb-3"><span x-show="lang==='fa'">در انتظار تکمیل قرارداد و بارگذاری کاتالوگ</span><span x-show="lang==='en'" x-cloak>Awaiting contract completion & catalog upload</span></p>
+                                <button class="mt-3 text-indigo-600 text-xs font-bold hover:underline"><span x-show="lang==='fa'">پیگیری فرآیند ثبت‌نام</span><span x-show="lang==='en'" x-cloak>Follow up onboarding</span></button>
+                            </div>
+                        </div>
+                        <div class="glass rounded-3xl border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 font-bold p-6 hover:border-indigo-400 hover:text-indigo-500 cursor-pointer transition-colors">
+                            <i class="fa-solid fa-plus mr-2 ml-2"></i> <span x-show="lang==='fa'">افزودن سازمان جدید</span><span x-show="lang==='en'" x-cloak>Add New Organization</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== FINANCE TAB ===== -->
+                <div x-show="activeTab === 'finance'" x-cloak class="space-y-5">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-2xl font-black text-emerald-600">610M</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">پورسانت این ماه (تومان)</span><span x-show="lang==='en'" x-cloak>Commission this month</span></div></div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-2xl font-black text-amber-500">86</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">پرداخت در انتظار تایید</span><span x-show="lang==='en'" x-cloak>Payments pending</span></div></div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-2xl font-black text-blue-600">24</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">فاکتور سازمانی این ماه</span><span x-show="lang==='en'" x-cloak>Org invoices this month</span></div></div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-2xl font-black text-rose-500">3</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">مغایرت مالی باز</span><span x-show="lang==='en'" x-cloak>Open discrepancies</span></div></div>
+                    </div>
+                    <div class="glass p-6 rounded-3xl border border-white bg-white/60">
+                        <h3 class="font-extrabold text-slate-800 mb-4"><span x-show="lang==='fa'">روند پورسانت پرداختی نمایندگان</span><span x-show="lang==='en'" x-cloak>Rep Commission Payout Trend</span></h3>
+                        <canvas id="financeChart" height="160"></canvas>
+                    </div>
+                    <div class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60 overflow-x-auto">
+                        <h3 class="font-extrabold text-slate-800 mb-4 text-lg"><span x-show="lang==='fa'">صف پرداخت پورسانت نمایندگان</span><span x-show="lang==='en'" x-cloak>Rep Commission Payout Queue</span></h3>
+                        <table class="w-full min-w-[600px]" :class="lang === 'fa' ? 'text-right' : 'text-left'">
+                            <thead class="bg-slate-100 text-slate-600 font-bold text-sm"><tr>
+                                <th class="p-4"><span x-show="lang === 'fa'">نماینده</span><span x-show="lang === 'en'" x-cloak>Rep</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">ویزیت تاییدشده</span><span x-show="lang === 'en'" x-cloak>Confirmed Visits</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">مبلغ (تومان)</span><span x-show="lang === 'en'" x-cloak>Amount (Toman)</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">وضعیت</span><span x-show="lang === 'en'" x-cloak>Status</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">عملیات</span><span x-show="lang === 'en'" x-cloak>Actions</span></th>
+                            </tr></thead>
+                            <tbody class="divide-y divide-slate-100 bg-white font-medium text-sm">
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold">حسین محمدی</td><td class="p-4">128</td><td class="p-4 font-bold text-emerald-600">12,500,000</td><td class="p-4"><span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">در انتظار</span><span x-show="lang==='en'" x-cloak>Pending</span></span></td><td class="p-4"><button class="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">تایید پرداخت</span><span x-show="lang==='en'" x-cloak>Approve Payout</span></button></td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold">نگار اسدی</td><td class="p-4">114</td><td class="p-4 font-bold text-emerald-600">10,900,000</td><td class="p-4"><span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">در انتظار</span><span x-show="lang==='en'" x-cloak>Pending</span></span></td><td class="p-4"><button class="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">تایید پرداخت</span><span x-show="lang==='en'" x-cloak>Approve Payout</span></button></td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold">کاوه رستمی</td><td class="p-4">102</td><td class="p-4 font-bold text-emerald-600">9,750,000</td><td class="p-4"><span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">پرداخت شده</span><span x-show="lang==='en'" x-cloak>Paid</span></span></td><td class="p-4 text-slate-400"><i class="fa-solid fa-check-circle text-emerald-500"></i></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ===== SUPPORT TAB ===== -->
+                <div x-show="activeTab === 'support'" x-cloak class="space-y-5">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-2xl font-black text-rose-500">15</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">تیکت باز</span><span x-show="lang==='en'" x-cloak>Open tickets</span></div></div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-2xl font-black text-amber-500">4</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">با اولویت بالا</span><span x-show="lang==='en'" x-cloak>High priority</span></div></div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-2xl font-black text-blue-600">2.1h</div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">میانگین زمان پاسخ</span><span x-show="lang==='en'" x-cloak>Avg first response</span></div></div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 text-center"><div class="text-2xl font-black text-amber-500">4.7<i class="fa-solid fa-star text-sm mr-1 ml-1"></i></div><div class="text-xs font-bold text-slate-500 mt-1"><span x-show="lang==='fa'">رضایت کاربران</span><span x-show="lang==='en'" x-cloak>User satisfaction</span></div></div>
+                    </div>
+                    <div class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60 overflow-x-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-extrabold text-slate-800 text-lg"><span x-show="lang==='fa'">صف تیکت‌های پشتیبانی</span><span x-show="lang==='en'" x-cloak>Support Ticket Queue</span></h3>
+                            <select class="border-2 border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-600">
+                                <option x-text="lang === 'fa' ? 'همه تیکت‌ها' : 'All tickets'"></option>
+                                <option x-text="lang === 'fa' ? 'از نمایندگان' : 'From Med-Reps'"></option>
+                                <option x-text="lang === 'fa' ? 'از پزشکان' : 'From Doctors'"></option>
+                            </select>
+                        </div>
+                        <table class="w-full min-w-[680px]" :class="lang === 'fa' ? 'text-right' : 'text-left'">
+                            <thead class="bg-slate-100 text-slate-600 font-bold text-sm"><tr>
+                                <th class="p-4">#</th>
+                                <th class="p-4"><span x-show="lang === 'fa'">درخواست‌کننده</span><span x-show="lang === 'en'" x-cloak>Requester</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">موضوع</span><span x-show="lang === 'en'" x-cloak>Subject</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">اولویت</span><span x-show="lang === 'en'" x-cloak>Priority</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">وضعیت</span><span x-show="lang === 'en'" x-cloak>Status</span></th>
+                            </tr></thead>
+                            <tbody class="divide-y divide-slate-100 bg-white font-medium text-sm">
+                                <tr class="hover:bg-slate-50"><td class="p-4 text-slate-400">#2291</td><td class="p-4 font-bold">دکتر حسین یزدانی <span class="text-[10px] text-slate-400">(<span x-show="lang==='fa'">پزشک</span><span x-show="lang==='en'" x-cloak>Doctor</span>)</span></td><td class="p-4"><span x-show="lang==='fa'">کد تایید ویزیت دریافت نشد</span><span x-show="lang==='en'" x-cloak>Visit OTP code not received</span></td><td class="p-4"><span class="bg-red-100 text-red-700 px-2 py-1 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">بالا</span><span x-show="lang==='en'" x-cloak>High</span></span></td><td class="p-4"><span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">در حال بررسی</span><span x-show="lang==='en'" x-cloak>In progress</span></span></td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 text-slate-400">#2290</td><td class="p-4 font-bold">سینا فرهادی <span class="text-[10px] text-slate-400">(<span x-show="lang==='fa'">نماینده</span><span x-show="lang==='en'" x-cloak>Med-Rep</span>)</span></td><td class="p-4"><span x-show="lang==='fa'">مشکل در بارگذاری مدرک</span><span x-show="lang==='en'" x-cloak>Issue uploading document</span></td><td class="p-4"><span class="bg-amber-100 text-amber-700 px-2 py-1 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">متوسط</span><span x-show="lang==='en'" x-cloak>Medium</span></span></td><td class="p-4"><span class="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">باز</span><span x-show="lang==='en'" x-cloak>Open</span></span></td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 text-slate-400">#2288</td><td class="p-4 font-bold">مریم کریمی <span class="text-[10px] text-slate-400">(<span x-show="lang==='fa'">نماینده</span><span x-show="lang==='en'" x-cloak>Med-Rep</span>)</span></td><td class="p-4"><span x-show="lang==='fa'">سوال درباره واریز پورسانت</span><span x-show="lang==='en'" x-cloak>Question about commission payout</span></td><td class="p-4"><span class="bg-slate-100 text-slate-600 px-2 py-1 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">پایین</span><span x-show="lang==='en'" x-cloak>Low</span></span></td><td class="p-4"><span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang==='fa'">پاسخ داده شد</span><span x-show="lang==='en'" x-cloak>Resolved</span></span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-auto py-8 border-t border-white text-center text-slate-500 relative z-10 glass">
+        <div class="container mx-auto font-medium">
+            <p><span x-show="lang === 'fa'">&copy; 2026 پلتفرم SIVRAS. تمامی حقوق محفوظ است.</span><span x-show="lang === 'en'" x-cloak>&copy; 2026 SIVRAS Platform. All rights reserved.</span></p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            const teal='#14b8a6', blue='#3b82f6', indigo='#6366f1', rose='#f43f5e', amber='#f59e0b', purple='#a855f7';
+            new Chart(document.getElementById('docsTrendChart'), {
+                type:'line',
+                data:{labels:['Far/Apr','Ord/May','Kho/Jun','Tir/Jul','Mor/Aug','Sha/Sep'],
+                datasets:[
+                    {label:'Submitted',data:[380,410,395,430,455,470],borderColor:blue,backgroundColor:'rgba(59,130,246,.1)',fill:true,tension:.4,pointRadius:3},
+                    {label:'Approved',data:[340,360,350,392,410,428],borderColor:teal,backgroundColor:'rgba(20,184,166,.1)',fill:true,tension:.4,pointRadius:3}
+                ]},
+                options:{plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}},scales:{y:{beginAtZero:true}}}
+            });
+            new Chart(document.getElementById('ticketCategoryChart'), {
+                type:'doughnut',
+                data:{labels:['OTP/Visit','Documents','Finance','Account','Technical'],
+                datasets:[{data:[5,4,3,2,1],backgroundColor:[rose,blue,'#10b981',amber,indigo]}]},
+                options:{plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}}}
+            });
+            new Chart(document.getElementById('financeChart'), {
+                type:'bar',
+                data:{labels:['Far/Apr','Ord/May','Kho/Jun','Tir/Jul','Mor/Aug','Sha/Sep'],
+                datasets:[{label:'Commission (M Toman)',data:[420,460,510,495,560,610],backgroundColor:amber,borderRadius:8}]},
+                options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+            });
+        });
+    </script>
+</body>
+</html>

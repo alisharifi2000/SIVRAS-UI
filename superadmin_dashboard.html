@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html x-data="{ lang: 'fa' }" :lang="lang" :dir="lang === 'fa' ? 'rtl' : 'ltr'">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIVRAS - Super Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body{font-family:'IRANSans','Vazirmatn',sans-serif;background-color:#f8fafc;}
+        .glass{background:rgba(255,255,255,.75);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.5);}
+        [x-cloak]{display:none!important;}
+        .stat-count{font-variant-numeric:tabular-nums;}
+        ::-webkit-scrollbar{height:6px;width:6px;}
+        ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px;}
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen relative overflow-x-hidden">
+    <div class="fixed top-0 left-0 w-[600px] h-[600px] bg-teal-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0"></div>
+    <div class="fixed bottom-0 right-0 w-[600px] h-[600px] bg-blue-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 translate-x-1/2 translate-y-1/2 pointer-events-none z-0"></div>
+
+    <header class="glass shadow-sm w-full sticky top-0 z-50 border-b border-white">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600 tracking-tight">SIVRAS</h1>
+                <div class="hidden md:block w-px h-6 bg-slate-300 mx-2"></div>
+                <span class="hidden md:inline-block text-sm font-bold text-slate-500">
+                    <span x-show="lang === 'fa'">پلتفرم جامع مدیریت نمایندگان علمی</span>
+                    <span x-show="lang === 'en'" x-cloak>Comprehensive Med-Rep Platform</span>
+                </span>
+            </div>
+            <nav class="flex gap-3 items-center">
+                <button @click="lang = lang === 'fa' ? 'en' : 'fa'" class="flex items-center gap-2 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 transition-colors px-4 py-2 rounded-xl border border-teal-200 shadow-sm">
+                    <i class="fa-solid fa-language text-lg"></i>
+                    <span x-text="lang === 'fa' ? 'English' : 'فارسی'"></span>
+                </button>
+                <button class="relative text-slate-500 hover:text-slate-800 bg-white/60 w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">5</span>
+                </button>
+                <div class="flex items-center gap-2 bg-white/60 px-3 py-1.5 rounded-xl border border-slate-200">
+                    <img src="https://i.pravatar.cc/80?u=superadmin" class="w-8 h-8 rounded-lg object-cover">
+                    <span class="text-sm font-bold text-slate-700 hidden sm:inline">
+                        <span x-show="lang === 'fa'">سارا احمدی</span><span x-show="lang === 'en'" x-cloak>Sara Ahmadi</span>
+                    </span>
+                </div>
+                <span class="text-sm font-bold text-blue-800 bg-blue-100 px-4 py-2 rounded-xl border border-blue-200 shadow-sm"><i class="fa-solid fa-crown mr-1 ml-1"></i> Super Admin</span>
+                <a href="index.html" class="text-red-500 hover:text-red-600 text-sm font-bold bg-white/50 px-4 py-2 rounded-xl border border-red-100 hover:bg-red-50 transition-colors">
+                    <i class="fa-solid fa-sign-out-alt"></i> <span x-show="lang === 'fa'">خروج</span><span x-show="lang === 'en'" x-cloak>Logout</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 relative z-10 flex-grow" x-data="{ activeTab: 'overview' }">
+        <div class="flex gap-6 flex-col md:flex-row">
+            <!-- Sidebar -->
+            <aside class="w-full md:w-64 glass rounded-[2rem] p-4 shadow-sm h-fit border border-white bg-white/60 md:sticky md:top-24">
+                <div class="px-2 pb-3 mb-2 border-b border-slate-200">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wide"><span x-show="lang==='fa'">منوی مدیریت</span><span x-show="lang==='en'" x-cloak>Admin Menu</span></div>
+                </div>
+                <nav class="flex flex-col gap-1.5">
+                    <button @click="activeTab = 'overview'" :class="activeTab === 'overview' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-chart-pie w-5 text-center"></i> <span x-show="lang === 'fa'">نمای کلی</span><span x-show="lang === 'en'" x-cloak>Overview</span>
+                    </button>
+                    <button @click="activeTab = 'users'" :class="activeTab === 'users' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-users-gear w-5 text-center"></i> <span x-show="lang === 'fa'">مدیریت کاربران و نقشها</span><span x-show="lang === 'en'" x-cloak>Users & Roles</span>
+                    </button>
+                    <button @click="activeTab = 'provinces'" :class="activeTab === 'provinces' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-map-location-dot w-5 text-center"></i> <span x-show="lang === 'fa'">استانها</span><span x-show="lang === 'en'" x-cloak>Provinces</span>
+                    </button>
+                    <button @click="activeTab = 'orgs'" :class="activeTab === 'orgs' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-building w-5 text-center"></i> <span x-show="lang === 'fa'">سازمانها</span><span x-show="lang === 'en'" x-cloak>Organizations</span>
+                    </button>
+                    <button @click="activeTab = 'products'" :class="activeTab === 'products' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-pills w-5 text-center"></i> <span x-show="lang === 'fa'">محصولات دارویی</span><span x-show="lang === 'en'" x-cloak>Products</span>
+                    </button>
+                    <button @click="activeTab = 'reports'" :class="activeTab === 'reports' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i> <span x-show="lang === 'fa'">گزارشهای سیستم</span><span x-show="lang === 'en'" x-cloak>System Reports</span>
+                    </button>
+                    <button @click="activeTab = 'logs'" :class="activeTab === 'logs' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-shield-halved w-5 text-center"></i> <span x-show="lang === 'fa'">گزارش امنیتی</span><span x-show="lang === 'en'" x-cloak>Audit Log</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <div class="flex-1 space-y-6 min-w-0">
+
+                <!-- ===== OVERVIEW TAB ===== -->
+                <div x-show="activeTab === 'overview'">
+                    <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+                        <h2 class="text-2xl font-black text-slate-800"><span x-show="lang==='fa'">نمای کلی پلتفرم</span><span x-show="lang==='en'" x-cloak>Platform Overview</span></h2>
+                        <div class="flex gap-2 text-xs font-bold">
+                            <span class="bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200"><i class="fa-solid fa-circle text-[6px] mr-1 ml-1"></i><span x-show="lang==='fa'">سرویسها سالم</span><span x-show="lang==='en'" x-cloak>All systems healthy</span></span>
+                            <span class="bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg border border-slate-200"><span x-show="lang==='fa'">بهروزرسانی: چند لحظه پیش</span><span x-show="lang==='en'" x-cloak>Updated: moments ago</span></span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <div class="flex justify-between items-start mb-2"><div class="w-11 h-11 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600"><i class="fa-solid fa-users"></i></div><span class="text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg"><i class="fa-solid fa-arrow-trend-up mr-1"></i><span x-show="lang === 'fa'">۴.۲٪</span><span x-show="lang === 'en'" x-cloak>4.2%</span></span></div>
+                            <div class="text-3xl font-black text-slate-800 stat-count"><span x-show="lang === 'fa'">۱۲,۴۵۰</span><span x-show="lang === 'en'" x-cloak>12,450</span></div>
+                            <div class="text-slate-500 font-bold text-sm mt-1"><span x-show="lang === 'fa'">کل کاربران</span><span x-show="lang === 'en'" x-cloak>Total Users</span></div>
+                        </div>
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <div class="flex justify-between items-start mb-2"><div class="w-11 h-11 bg-teal-100 rounded-2xl flex items-center justify-center text-teal-600"><i class="fa-solid fa-briefcase-medical"></i></div><span class="text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg"><i class="fa-solid fa-arrow-trend-up mr-1"></i><span x-show="lang === 'fa'">۷.۱٪</span><span x-show="lang === 'en'" x-cloak>7.1%</span></span></div>
+                            <div class="text-3xl font-black text-teal-600 stat-count"><span x-show="lang === 'fa'">۳,۱۲۰</span><span x-show="lang === 'en'" x-cloak>3,120</span></div>
+                            <div class="text-slate-500 font-bold text-sm mt-1"><span x-show="lang === 'fa'">نمایندگان فعال</span><span x-show="lang === 'en'" x-cloak>Active Reps</span></div>
+                        </div>
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <div class="flex justify-between items-start mb-2"><div class="w-11 h-11 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600"><i class="fa-solid fa-user-doctor"></i></div><span class="text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg"><i class="fa-solid fa-arrow-trend-up mr-1"></i><span x-show="lang === 'fa'">۲.۸٪</span><span x-show="lang === 'en'" x-cloak>2.8%</span></span></div>
+                            <div class="text-3xl font-black text-rose-600 stat-count"><span x-show="lang === 'fa'">۸,۹۴۰</span><span x-show="lang === 'en'" x-cloak>8,940</span></div>
+                            <div class="text-slate-500 font-bold text-sm mt-1"><span x-show="lang === 'fa'">پزشکان عضو</span><span x-show="lang === 'en'" x-cloak>Registered Doctors</span></div>
+                        </div>
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <div class="flex justify-between items-start mb-2"><div class="w-11 h-11 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600"><i class="fa-solid fa-hourglass-half"></i></div><span class="text-red-500 text-xs font-bold bg-red-50 px-2 py-1 rounded-lg"><i class="fa-solid fa-arrow-trend-up mr-1"></i><span x-show="lang==='fa'">نیازمند بررسی</span><span x-show="lang==='en'" x-cloak>Needs review</span></span></div>
+                            <div class="text-3xl font-black text-amber-600 stat-count"><span x-show="lang === 'fa'">۱۸۶</span><span x-show="lang === 'en'" x-cloak>186</span></div>
+                            <div class="text-slate-500 font-bold text-sm mt-1"><span x-show="lang === 'fa'">در انتظار تایید</span><span x-show="lang === 'en'" x-cloak>Pending Approvals</span></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
+                        <div class="lg:col-span-2 glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-extrabold text-slate-800"><span x-show="lang==='fa'">روند ویزیتهای ماهانه (تایید شده)</span><span x-show="lang==='en'" x-cloak>Monthly Confirmed Visits</span></h3>
+                                <span class="text-xs font-bold text-slate-400"><span x-show="lang==='fa'">۶ ماه اخیر</span><span x-show="lang==='en'" x-cloak>Last 6 months</span></span>
+                            </div>
+                            <canvas id="visitsTrendChart" height="110"></canvas>
+                        </div>
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <h3 class="font-extrabold text-slate-800 mb-4"><span x-show="lang==='fa'">کاربران به تفکیک نقش</span><span x-show="lang==='en'" x-cloak>Users by Role</span></h3>
+                            <canvas id="usersRoleChart" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                        <div class="lg:col-span-2 glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <h3 class="font-extrabold text-slate-800 mb-4"><span x-show="lang==='fa'">توزیع نمایندگان به تفکیک استان (۱۰ استان برتر)</span><span x-show="lang==='en'" x-cloak>Reps by Province (Top 10)</span></h3>
+                            <canvas id="provinceBarChart" height="120"></canvas>
+                        </div>
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <h3 class="font-extrabold text-slate-800 mb-4"><span x-show="lang==='fa'">فعالیتهای اخیر سیستم</span><span x-show="lang==='en'" x-cloak>Recent Activity</span></h3>
+                            <div class="space-y-4 text-sm">
+                                <div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-check text-xs"></i></div><div><p class="font-bold text-slate-700"><span x-show="lang==='fa'">مدرک نماینده جدید تایید شد</span><span x-show="lang==='en'" x-cloak>New rep document approved</span></p><p class="text-slate-400 text-xs"><span x-show="lang==='fa'">۵ دقیقه پیش</span><span x-show="lang==='en'" x-cloak>5 mins ago</span></p></div></div>
+                                <div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-building text-xs"></i></div><div><p class="font-bold text-slate-700"><span x-show="lang==='fa'">سازمان «داروسازی البرز» محصول افزود</span><span x-show="lang==='en'" x-cloak>Alborz Pharma added a product</span></p><p class="text-slate-400 text-xs"><span x-show="lang==='fa'">۲۲ دقیقه پیش</span><span x-show="lang==='en'" x-cloak>22 mins ago</span></p></div></div>
+                                <div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-user-plus text-xs"></i></div><div><p class="font-bold text-slate-700"><span x-show="lang==='fa'">ادمین استانی جدید تعریف شد (اصفهان)</span><span x-show="lang==='en'" x-cloak>New provincial admin added (Isfahan)</span></p><p class="text-slate-400 text-xs"><span x-show="lang==='fa'">۱ ساعت پیش</span><span x-show="lang==='en'" x-cloak>1 hour ago</span></p></div></div>
+                                <div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-triangle-exclamation text-xs"></i></div><div><p class="font-bold text-slate-700"><span x-show="lang==='fa'">۳ مدرک رد شد - نیاز به اصلاح</span><span x-show="lang==='en'" x-cloak>3 documents rejected - needs edit</span></p><p class="text-slate-400 text-xs"><span x-show="lang==='fa'">۳ ساعت پیش</span><span x-show="lang==='en'" x-cloak>3 hours ago</span></p></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== USERS TAB ===== -->
+                <div x-show="activeTab === 'users'" x-cloak class="space-y-5">
+                    <div class="glass p-5 rounded-3xl shadow-sm border border-white bg-white/60 flex flex-wrap gap-3 justify-between items-center">
+                        <div class="flex gap-2 flex-wrap">
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute top-1/2 -translate-y-1/2 text-slate-400 text-sm" :class="lang === 'en' ? 'left-4' : 'right-4'"></i>
+                                <input type="text" :placeholder="lang === 'fa' ? 'جستجوی نام، موبایل یا کد ملی...' : 'Search name, mobile or national ID...'" class="border-2 border-slate-200 rounded-xl px-10 py-2.5 text-sm font-medium w-64 focus:border-teal-500 outline-none">
+                            </div>
+                            <select class="border-2 border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-600">
+                                <option x-text="lang === 'fa' ? 'همه نقشها' : 'All Roles'"></option>
+                                <option x-text="lang === 'fa' ? 'سوپر ادمین' : 'Super Admin'"></option>
+                                <option x-text="lang === 'fa' ? 'ادمین استانی' : 'Provincial Admin'"></option>
+                                <option x-text="lang === 'fa' ? 'اپراتور ستاد' : 'HQ Operator'"></option>
+                                <option x-text="lang === 'fa' ? 'نماینده علمی' : 'Med-Rep'"></option>
+                                <option x-text="lang === 'fa' ? 'نماینده سازمان' : 'Org-Rep'"></option>
+                                <option x-text="lang === 'fa' ? 'پزشک' : 'Doctor'"></option>
+                            </select>
+                        </div>
+                        <button class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow hover:bg-blue-700 transition-colors"><i class="fa-solid fa-plus mr-1 ml-1"></i><span x-show="lang === 'fa'">کاربر جدید</span><span x-show="lang === 'en'" x-cloak>New User</span></button>
+                    </div>
+
+                    <div class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60">
+                        <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                            <table class="w-full min-w-[720px]" :class="lang === 'fa' ? 'text-right' : 'text-left'">
+                                <thead class="bg-slate-100 text-slate-600 font-bold text-sm">
+                                    <tr>
+                                        <th class="p-4"><span x-show="lang === 'fa'">کاربر</span><span x-show="lang === 'en'" x-cloak>User</span></th>
+                                        <th class="p-4"><span x-show="lang === 'fa'">نقش(ها)</span><span x-show="lang === 'en'" x-cloak>Role(s)</span></th>
+                                        <th class="p-4"><span x-show="lang === 'fa'">استان</span><span x-show="lang === 'en'" x-cloak>Province</span></th>
+                                        <th class="p-4"><span x-show="lang === 'fa'">وضعیت</span><span x-show="lang === 'en'" x-cloak>Status</span></th>
+                                        <th class="p-4"><span x-show="lang === 'fa'">عملیات</span><span x-show="lang === 'en'" x-cloak>Actions</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 bg-white font-medium text-sm">
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-4 flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=u1" class="w-9 h-9 rounded-lg object-cover"><div><div class="font-bold text-slate-800"><span x-show="lang === 'fa'">علی رضایی</span><span x-show="lang === 'en'" x-cloak>Ali Rezaei</span></div><div class="text-xs text-slate-400 dir-ltr text-left">0912***4521</div></div></td>
+                                        <td class="p-4"><div class="flex flex-wrap gap-1"><span class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-lg text-xs font-bold border border-indigo-200"><span x-show="lang === 'fa'">اپراتور ستاد</span><span x-show="lang === 'en'" x-cloak>HQ Operator</span></span><span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-lg text-xs font-bold border border-purple-200"><span x-show="lang === 'fa'">مالی</span><span x-show="lang === 'en'" x-cloak>Finance</span></span></div></td>
+                                        <td class="p-4 text-slate-500"><span x-show="lang === 'fa'">تهران</span><span x-show="lang === 'en'" x-cloak>Tehran</span></td>
+                                        <td class="p-4"><span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">فعال</span><span x-show="lang === 'en'" x-cloak>Active</span></span></td>
+                                        <td class="p-4 flex gap-2 text-slate-400"><button class="hover:text-blue-600"><i class="fa-solid fa-pen"></i></button><button class="hover:text-red-600"><i class="fa-solid fa-ban"></i></button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-4 flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=u2" class="w-9 h-9 rounded-lg object-cover"><div><div class="font-bold text-slate-800"><span x-show="lang === 'fa'">مریم کریمی</span><span x-show="lang === 'en'" x-cloak>Maryam Karimi</span></div><div class="text-xs text-slate-400 dir-ltr text-left">0935***9087</div></div></td>
+                                        <td class="p-4"><span class="bg-teal-100 text-teal-700 px-2 py-1 rounded-lg text-xs font-bold border border-teal-200"><span x-show="lang === 'fa'">نماینده علمی</span><span x-show="lang === 'en'" x-cloak>Med-Rep</span></span></td>
+                                        <td class="p-4 text-slate-500"><span x-show="lang === 'fa'">اصفهان</span><span x-show="lang === 'en'" x-cloak>Isfahan</span></td>
+                                        <td class="p-4"><span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">در انتظار</span><span x-show="lang === 'en'" x-cloak>Pending</span></span></td>
+                                        <td class="p-4 flex gap-2 text-slate-400"><button class="hover:text-blue-600"><i class="fa-solid fa-pen"></i></button><button class="hover:text-red-600"><i class="fa-solid fa-ban"></i></button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-4 flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=u3" class="w-9 h-9 rounded-lg object-cover"><div><div class="font-bold text-slate-800"><span x-show="lang === 'fa'">دکتر حسین یزدانی</span><span x-show="lang === 'en'" x-cloak>Dr. Hossein Yazdani</span></div><div class="text-xs text-slate-400 dir-ltr text-left">0919***2214</div></div></td>
+                                        <td class="p-4"><span class="bg-rose-100 text-rose-700 px-2 py-1 rounded-lg text-xs font-bold border border-rose-200"><span x-show="lang === 'fa'">پزشک</span><span x-show="lang === 'en'" x-cloak>Doctor</span></span></td>
+                                        <td class="p-4 text-slate-500"><span x-show="lang === 'fa'">مشهد</span><span x-show="lang === 'en'" x-cloak>Mashhad</span></td>
+                                        <td class="p-4"><span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">فعال</span><span x-show="lang === 'en'" x-cloak>Active</span></span></td>
+                                        <td class="p-4 flex gap-2 text-slate-400"><button class="hover:text-blue-600"><i class="fa-solid fa-pen"></i></button><button class="hover:text-red-600"><i class="fa-solid fa-ban"></i></button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-4 flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=u4" class="w-9 h-9 rounded-lg object-cover"><div><div class="font-bold text-slate-800"><span x-show="lang === 'fa'">فاطمه نوری</span><span x-show="lang === 'en'" x-cloak>Fatemeh Nouri</span></div><div class="text-xs text-slate-400 dir-ltr text-left">0938***7723</div></div></td>
+                                        <td class="p-4"><div class="flex flex-wrap gap-1"><span class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-lg text-xs font-bold border border-indigo-200"><span x-show="lang === 'fa'">اپراتور ستاد</span><span x-show="lang === 'en'" x-cloak>HQ Operator</span></span><span class="bg-sky-100 text-sky-700 px-2 py-1 rounded-lg text-xs font-bold border border-sky-200"><span x-show="lang === 'fa'">آموزش</span><span x-show="lang === 'en'" x-cloak>Education</span></span><span class="bg-orange-100 text-orange-700 px-2 py-1 rounded-lg text-xs font-bold border border-orange-200"><span x-show="lang === 'fa'">پشتیبانی</span><span x-show="lang === 'en'" x-cloak>Support</span></span></div></td>
+                                        <td class="p-4 text-slate-500"><span x-show="lang === 'fa'">شیراز</span><span x-show="lang === 'en'" x-cloak>Shiraz</span></td>
+                                        <td class="p-4"><span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">فعال</span><span x-show="lang === 'en'" x-cloak>Active</span></span></td>
+                                        <td class="p-4 flex gap-2 text-slate-400"><button class="hover:text-blue-600"><i class="fa-solid fa-pen"></i></button><button class="hover:text-red-600"><i class="fa-solid fa-ban"></i></button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-4 flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=u5" class="w-9 h-9 rounded-lg object-cover"><div><div class="font-bold text-slate-800"><span x-show="lang === 'fa'">شرکت داروسازی البرز</span><span x-show="lang === 'en'" x-cloak>Alborz Pharma</span></div><div class="text-xs text-slate-400"><span x-show="lang === 'fa'">نماینده: کاظمی</span><span x-show="lang === 'en'" x-cloak>Rep: Kazemi</span></div></div></td>
+                                        <td class="p-4"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-lg text-xs font-bold border border-yellow-200"><span x-show="lang === 'fa'">نماینده سازمان</span><span x-show="lang === 'en'" x-cloak>Org-Rep</span></span></td>
+                                        <td class="p-4 text-slate-500">—</td>
+                                        <td class="p-4"><span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">فعال</span><span x-show="lang === 'en'" x-cloak>Active</span></span></td>
+                                        <td class="p-4 flex gap-2 text-slate-400"><button class="hover:text-blue-600"><i class="fa-solid fa-pen"></i></button><button class="hover:text-red-600"><i class="fa-solid fa-ban"></i></button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-4 flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=u6" class="w-9 h-9 rounded-lg object-cover"><div><div class="font-bold text-slate-800"><span x-show="lang === 'fa'">رضا قاسمی</span><span x-show="lang === 'en'" x-cloak>Reza Ghasemi</span></div><div class="text-xs text-slate-400 dir-ltr text-left">0912***3390</div></div></td>
+                                        <td class="p-4"><span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-lg text-xs font-bold border border-purple-200"><span x-show="lang === 'fa'">ادمین استانی</span><span x-show="lang === 'en'" x-cloak>Provincial Admin</span></span></td>
+                                        <td class="p-4 text-slate-500"><span x-show="lang === 'fa'">فارس</span><span x-show="lang === 'en'" x-cloak>Fars</span></td>
+                                        <td class="p-4"><span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">مسدود</span><span x-show="lang === 'en'" x-cloak>Banned</span></span></td>
+                                        <td class="p-4 flex gap-2 text-slate-400"><button class="hover:text-blue-600"><i class="fa-solid fa-pen"></i></button><button class="hover:text-emerald-600"><i class="fa-solid fa-rotate-left"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="flex justify-between items-center mt-4 text-sm text-slate-500 font-bold">
+                            <span><span x-show="lang === 'fa'">نمایش ۱ تا ۶ از ۱۲,۴۵۰ کاربر</span><span x-show="lang === 'en'" x-cloak>Showing 1 to 6 of 12,450 users</span></span>
+                            <div class="flex gap-1">
+                                <button class="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50">‹</button>
+                                <button class="w-9 h-9 rounded-lg bg-slate-800 text-white">1</button>
+                                <button class="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50">2</button>
+                                <button class="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50">3</button>
+                                <button class="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50">›</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/40">
+                        <h3 class="font-extrabold text-slate-800 mb-2 flex items-center gap-2"><i class="fa-solid fa-circle-info text-blue-500"></i> <span x-show="lang === 'fa'">نکته طراحی برای تیم توسعه</span><span x-show="lang === 'en'" x-cloak>Design Note for Dev Team</span></h3>
+                        <p class="text-sm text-slate-500 font-medium leading-relaxed"><span x-show="lang === 'fa'">هر کاربر میتواند بیش از یک نقش همزمان داشته باشد (مخصوصاً اپراتورهای ستاد). ستون «نقش(ها)» به صورت چندبرچسبی طراحی شده و فرم افزودن/ویرایش کاربر باید یک چکباکسلیست از نقشها و زیرمجموعهی «حوزه فعالیت اپراتور» (مالی، آموزش، عملیات، پشتیبانی، مدارک) را نمایش دهد.</span><span x-show="lang === 'en'" x-cloak>Users can have multiple roles simultaneously (especially HQ Operators). The "Role(s)" column is multi-label designed, and the add/edit user form should display a checklist of roles and sub-categories of "Operator Activity Domain" (Finance, Training, Operations, Support, Documents).</span></p>
+                    </div>
+                </div>
+
+                <!-- ===== PROVINCES TAB ===== -->
+                <div x-show="activeTab === 'provinces'" x-cloak class="space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 flex items-center gap-4">
+                            <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-map"></i></div>
+                            <div><div class="text-2xl font-black"><span x-show="lang === 'fa'">۳۱</span><span x-show="lang === 'en'" x-cloak>31</span></div><div class="text-xs font-bold text-slate-500"><span x-show="lang === 'fa'">استان تحت پوشش</span><span x-show="lang === 'en'" x-cloak>Covered Provinces</span></div></div>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 flex items-center gap-4">
+                            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-user-tie"></i></div>
+                            <div><div class="text-2xl font-black"><span x-show="lang === 'fa'">۲۹</span><span x-show="lang === 'en'" x-cloak>29</span></div><div class="text-xs font-bold text-slate-500"><span x-show="lang === 'fa'">ادمین استانی فعال</span><span x-show="lang === 'en'" x-cloak>Active Prov Admins</span></div></div>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 flex items-center gap-4">
+                            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div><div class="text-2xl font-black"><span x-show="lang === 'fa'">۲</span><span x-show="lang === 'en'" x-cloak>2</span></div><div class="text-xs font-bold text-slate-500"><span x-show="lang === 'fa'">استان بدون ادمین</span><span x-show="lang === 'en'" x-cloak>Provinces without admin</span></div></div>
+                        </div>
+                    </div>
+                    <div class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60 overflow-x-auto">
+                        <table class="w-full min-w-[640px]" :class="lang === 'fa' ? 'text-right' : 'text-left'">
+                            <thead class="bg-slate-100 text-slate-600 font-bold text-sm"><tr>
+                                <th class="p-4"><span x-show="lang === 'fa'">استان</span><span x-show="lang === 'en'" x-cloak>Province</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">ادمین استانی</span><span x-show="lang === 'en'" x-cloak>Provincial Admin</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">نمایندگان فعال</span><span x-show="lang === 'en'" x-cloak>Active Reps</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">پزشکان</span><span x-show="lang === 'en'" x-cloak>Doctors</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">ویزیت این ماه</span><span x-show="lang === 'en'" x-cloak>Visits this month</span></th>
+                            </tr></thead>
+                            <tbody class="divide-y divide-slate-100 bg-white font-medium text-sm">
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold"><span x-show="lang === 'fa'">تهران</span><span x-show="lang === 'en'" x-cloak>Tehran</span></td><td class="p-4"><span x-show="lang === 'fa'">رضا قاسمی</span><span x-show="lang === 'en'" x-cloak>Reza Ghasemi</span></td><td class="p-4"><span x-show="lang === 'fa'">۷۴۰</span><span x-show="lang === 'en'" x-cloak>740</span></td><td class="p-4"><span x-show="lang === 'fa'">۱,۹۲۰</span><span x-show="lang === 'en'" x-cloak>1,920</span></td><td class="p-4 text-teal-600 font-bold"><span x-show="lang === 'fa'">۳,۱۱۰</span><span x-show="lang === 'en'" x-cloak>3,110</span></td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold"><span x-show="lang === 'fa'">اصفهان</span><span x-show="lang === 'en'" x-cloak>Isfahan</span></td><td class="p-4"><span x-show="lang === 'fa'">لیلا صادقی</span><span x-show="lang === 'en'" x-cloak>Leila Sadeghi</span></td><td class="p-4"><span x-show="lang === 'fa'">۳۸۰</span><span x-show="lang === 'en'" x-cloak>380</span></td><td class="p-4"><span x-show="lang === 'fa'">۹۴۰</span><span x-show="lang === 'en'" x-cloak>940</span></td><td class="p-4 text-teal-600 font-bold"><span x-show="lang === 'fa'">۱,۶۵۰</span><span x-show="lang === 'en'" x-cloak>1,650</span></td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold"><span x-show="lang === 'fa'">فارس</span><span x-show="lang === 'en'" x-cloak>Fars</span></td><td class="p-4 text-amber-600"><span x-show="lang === 'fa'">بدون ادمین</span><span x-show="lang === 'en'" x-cloak>No Admin</span></td><td class="p-4"><span x-show="lang === 'fa'">۲۹۰</span><span x-show="lang === 'en'" x-cloak>290</span></td><td class="p-4"><span x-show="lang === 'fa'">۶۸۰</span><span x-show="lang === 'en'" x-cloak>680</span></td><td class="p-4 text-teal-600 font-bold"><span x-show="lang === 'fa'">۹۸۰</span><span x-show="lang === 'en'" x-cloak>980</span></td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold"><span x-show="lang === 'fa'">خراسان رضوی</span><span x-show="lang === 'en'" x-cloak>Khorasan Razavi</span></td><td class="p-4"><span x-show="lang === 'fa'">امیر توکلی</span><span x-show="lang === 'en'" x-cloak>Amir Tavakoli</span></td><td class="p-4"><span x-show="lang === 'fa'">۳۱۰</span><span x-show="lang === 'en'" x-cloak>310</span></td><td class="p-4"><span x-show="lang === 'fa'">۷۲۰</span><span x-show="lang === 'en'" x-cloak>720</span></td><td class="p-4 text-teal-600 font-bold"><span x-show="lang === 'fa'">۱,۱۴۰</span><span x-show="lang === 'en'" x-cloak>1,140</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ===== ORGS TAB ===== -->
+                <div x-show="activeTab === 'orgs'" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="glass p-6 rounded-3xl border border-white bg-white/60 flex items-start gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 text-2xl shrink-0"><i class="fa-solid fa-building"></i></div>
+                        <div class="flex-1">
+                            <div class="flex justify-between"><h4 class="font-extrabold text-slate-800"><span x-show="lang === 'fa'">داروسازی البرز</span><span x-show="lang === 'en'" x-cloak>Alborz Pharma</span></h4><span class="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-1 rounded-lg"><span x-show="lang === 'fa'">فعال</span><span x-show="lang === 'en'" x-cloak>Active</span></span></div>
+                            <p class="text-xs text-slate-500 mt-1 mb-3"><span x-show="lang === 'fa'">۱۲ محصول ثبتشده · نماینده: کاظمی</span><span x-show="lang === 'en'" x-cloak>12 registered products · Rep: Kazemi</span></p>
+                            <div class="flex gap-4 text-sm font-bold text-slate-600"><span><i class="fa-solid fa-pills text-blue-400 mr-1"></i><span x-show="lang === 'fa'">۱۲ محصول</span><span x-show="lang === 'en'" x-cloak>12 Products</span></span><span><i class="fa-solid fa-route text-teal-400 mr-1"></i><span x-show="lang === 'fa'">۴۲۰ ویزیت/ماه</span><span x-show="lang === 'en'" x-cloak>420 visits/month</span></span></div>
+                        </div>
+                    </div>
+                    <div class="glass p-6 rounded-3xl border border-white bg-white/60 flex items-start gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-500 text-2xl shrink-0"><i class="fa-solid fa-building"></i></div>
+                        <div class="flex-1">
+                            <div class="flex justify-between"><h4 class="font-extrabold text-slate-800"><span x-show="lang === 'fa'">شرکت داروسازی سبحان دارو</span><span x-show="lang === 'en'" x-cloak>Sobhan Darou Pharma</span></h4><span class="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-1 rounded-lg"><span x-show="lang === 'fa'">فعال</span><span x-show="lang === 'en'" x-cloak>Active</span></span></div>
+                            <p class="text-xs text-slate-500 mt-1 mb-3"><span x-show="lang === 'fa'">۸ محصول ثبتشده · نماینده: موسوی</span><span x-show="lang === 'en'" x-cloak>8 registered products · Rep: Mousavi</span></p>
+                            <div class="flex gap-4 text-sm font-bold text-slate-600"><span><i class="fa-solid fa-pills text-blue-400 mr-1"></i><span x-show="lang === 'fa'">۸ محصول</span><span x-show="lang === 'en'" x-cloak>8 Products</span></span><span><i class="fa-solid fa-route text-teal-400 mr-1"></i><span x-show="lang === 'fa'">۲۹۰ ویزیت/ماه</span><span x-show="lang === 'en'" x-cloak>290 visits/month</span></span></div>
+                        </div>
+                    </div>
+                    <div class="glass p-6 rounded-3xl border border-white bg-white/60 flex items-start gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-500 text-2xl shrink-0"><i class="fa-solid fa-building"></i></div>
+                        <div class="flex-1">
+                            <div class="flex justify-between"><h4 class="font-extrabold text-slate-800"><span x-show="lang === 'fa'">داروسازی ابوریحان</span><span x-show="lang === 'en'" x-cloak>Aburaihan Pharma</span></h4><span class="text-xs font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-lg"><span x-show="lang === 'fa'">در بررسی</span><span x-show="lang === 'en'" x-cloak>Under Review</span></span></div>
+                            <p class="text-xs text-slate-500 mt-1 mb-3"><span x-show="lang === 'fa'">۳ محصول ثبتشده · نماینده: احمدینژاد</span><span x-show="lang === 'en'" x-cloak>3 registered products · Rep: Ahmadinejad</span></p>
+                            <div class="flex gap-4 text-sm font-bold text-slate-600"><span><i class="fa-solid fa-pills text-blue-400 mr-1"></i><span x-show="lang === 'fa'">۳ محصول</span><span x-show="lang === 'en'" x-cloak>3 Products</span></span><span><i class="fa-solid fa-route text-teal-400 mr-1"></i><span x-show="lang === 'fa'">۶۰ ویزیت/ماه</span><span x-show="lang === 'en'" x-cloak>60 visits/month</span></span></div>
+                        </div>
+                    </div>
+                    <div class="glass rounded-3xl border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 font-bold p-6 hover:border-teal-400 hover:text-teal-500 cursor-pointer transition-colors">
+                        <i class="fa-solid fa-plus mr-2 ml-2"></i> <span x-show="lang === 'fa'">افزودن سازمان جدید</span><span x-show="lang === 'en'" x-cloak>Add New Organization</span>
+                    </div>
+                </div>
+
+                <!-- ===== PRODUCTS TAB ===== -->
+                <div x-show="activeTab === 'products'" x-cloak class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60 overflow-x-auto">
+                    <div class="flex justify-between mb-4">
+                        <h3 class="font-extrabold text-slate-800 text-xl"><span x-show="lang === 'fa'">محصولات دارویی ثبتشده در سیستم</span><span x-show="lang === 'en'" x-cloak>Registered Pharmaceutical Products</span></h3>
+                        <button class="bg-teal-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow hover:bg-teal-700"><i class="fa-solid fa-plus mr-1 ml-1"></i> <span x-show="lang === 'fa'">محصول جدید</span><span x-show="lang === 'en'" x-cloak>New Product</span></button>
+                    </div>
+                    <table class="w-full min-w-[720px]" :class="lang === 'fa' ? 'text-right' : 'text-left'">
+                        <thead class="bg-slate-100 text-slate-600 font-bold text-sm"><tr>
+                            <th class="p-4"><span x-show="lang === 'fa'">نام دارو</span><span x-show="lang === 'en'" x-cloak>Drug Name</span></th>
+                            <th class="p-4"><span x-show="lang === 'fa'">دسته درمانی</span><span x-show="lang === 'en'" x-cloak>Therapy Area</span></th>
+                            <th class="p-4"><span x-show="lang === 'fa'">سازمان مالک</span><span x-show="lang === 'en'" x-cloak>Owner Org</span></th>
+                            <th class="p-4"><span x-show="lang === 'fa'">نمایندگان فعال</span><span x-show="lang === 'en'" x-cloak>Active Reps</span></th>
+                            <th class="p-4"><span x-show="lang === 'fa'">آزمون دانش</span><span x-show="lang === 'en'" x-cloak>Knowledge Test</span></th>
+                        </tr></thead>
+                        <tbody class="divide-y divide-slate-100 bg-white font-medium text-sm">
+                            <tr class="hover:bg-slate-50"><td class="p-4 font-bold">کاردیوپلاس (Atorvastatin 20mg)</td><td class="p-4"><span class="bg-rose-50 text-rose-600 px-2 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">قلب و عروق</span><span x-show="lang === 'en'" x-cloak>Cardiology</span></span></td><td class="p-4"><span x-show="lang === 'fa'">داروسازی البرز</span><span x-show="lang === 'en'" x-cloak>Alborz Pharma</span></td><td class="p-4"><span x-show="lang === 'fa'">۱۴۰</span><span x-show="lang === 'en'" x-cloak>140</span></td><td class="p-4 text-emerald-600 font-bold"><span x-show="lang === 'fa'">فعال · ۲۵ سوال</span><span x-show="lang === 'en'" x-cloak>Active · 25 Questions</span></td></tr>
+                            <tr class="hover:bg-slate-50"><td class="p-4 font-bold">گلوکوفارم (Metformin 500mg)</td><td class="p-4"><span class="bg-amber-50 text-amber-600 px-2 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">غدد و دیابت</span><span x-show="lang === 'en'" x-cloak>Endocrinology</span></span></td><td class="p-4"><span x-show="lang === 'fa'">داروسازی البرز</span><span x-show="lang === 'en'" x-cloak>Alborz Pharma</span></td><td class="p-4"><span x-show="lang === 'fa'">۹۸</span><span x-show="lang === 'en'" x-cloak>98</span></td><td class="p-4 text-emerald-600 font-bold"><span x-show="lang === 'fa'">فعال · ۲۰ سوال</span><span x-show="lang === 'en'" x-cloak>Active · 20 Questions</span></td></tr>
+                            <tr class="hover:bg-slate-50"><td class="p-4 font-bold">لوزارکس (Losartan 50mg)</td><td class="p-4"><span class="bg-rose-50 text-rose-600 px-2 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">قلب و عروق</span><span x-show="lang === 'en'" x-cloak>Cardiology</span></span></td><td class="p-4"><span x-show="lang === 'fa'">سبحان دارو</span><span x-show="lang === 'en'" x-cloak>Sobhan Darou</span></td><td class="p-4"><span x-show="lang === 'fa'">۶۵</span><span x-show="lang === 'en'" x-cloak>65</span></td><td class="p-4 text-emerald-600 font-bold"><span x-show="lang === 'fa'">فعال · ۱۸ سوال</span><span x-show="lang === 'en'" x-cloak>Active · 18 Questions</span></td></tr>
+                            <tr class="hover:bg-slate-50"><td class="p-4 font-bold">پنتوپرازول سبحان ۴۰</td><td class="p-4"><span class="bg-lime-50 text-lime-700 px-2 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">گوارش</span><span x-show="lang === 'en'" x-cloak>Gastroenterology</span></span></td><td class="p-4"><span x-show="lang === 'fa'">سبحان دارو</span><span x-show="lang === 'en'" x-cloak>Sobhan Darou</span></td><td class="p-4"><span x-show="lang === 'fa'">۴۲</span><span x-show="lang === 'en'" x-cloak>42</span></td><td class="p-4 text-slate-400 font-bold"><span x-show="lang === 'fa'">در حال تدوین</span><span x-show="lang === 'en'" x-cloak>Drafting</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ===== REPORTS TAB ===== -->
+                <div x-show="activeTab === 'reports'" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="glass p-6 rounded-3xl border border-white bg-white/60">
+                        <h3 class="font-extrabold text-slate-800 mb-4"><span x-show="lang === 'fa'">گزارش مالی کلی (تجمیعی)</span><span x-show="lang === 'en'" x-cloak>General Financial Report (Aggregate)</span></h3>
+                        <canvas id="financeChart" height="180"></canvas>
+                    </div>
+                    <div class="glass p-6 rounded-3xl border border-white bg-white/60 space-y-4">
+                        <h3 class="font-extrabold text-slate-800 mb-2"><span x-show="lang === 'fa'">گزارشهای آماده</span><span x-show="lang === 'en'" x-cloak>Ready Reports</span></h3>
+                        <div class="flex justify-between items-center p-4 bg-white rounded-2xl border border-slate-100"><span class="font-bold text-sm text-slate-600"><i class="fa-solid fa-file-pdf text-red-400 mr-2 ml-2"></i><span x-show="lang === 'fa'">گزارش عملکرد استانی - شهریور</span><span x-show="lang === 'en'" x-cloak>Provincial Performance Report - Sep</span></span><button class="text-teal-600 font-bold text-sm"><span x-show="lang === 'fa'">دانلود</span><span x-show="lang === 'en'" x-cloak>Download</span></button></div>
+                        <div class="flex justify-between items-center p-4 bg-white rounded-2xl border border-slate-100"><span class="font-bold text-sm text-slate-600"><i class="fa-solid fa-file-excel text-emerald-500 mr-2 ml-2"></i><span x-show="lang === 'fa'">گزارش مالی نمایندگان - شهریور</span><span x-show="lang === 'en'" x-cloak>Med-Rep Financial Report - Sep</span></span><button class="text-teal-600 font-bold text-sm"><span x-show="lang === 'fa'">دانلود</span><span x-show="lang === 'en'" x-cloak>Download</span></button></div>
+                        <div class="flex justify-between items-center p-4 bg-white rounded-2xl border border-slate-100"><span class="font-bold text-sm text-slate-600"><i class="fa-solid fa-file-pdf text-red-400 mr-2 ml-2"></i><span x-show="lang === 'fa'">گزارش تایید مدارک سازمانها</span><span x-show="lang === 'en'" x-cloak>Org Documents Verification Report</span></span><button class="text-teal-600 font-bold text-sm"><span x-show="lang === 'fa'">دانلود</span><span x-show="lang === 'en'" x-cloak>Download</span></button></div>
+                    </div>
+                </div>
+
+                <!-- ===== LOGS TAB ===== -->
+                <div x-show="activeTab === 'logs'" x-cloak class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60 overflow-x-auto">
+                    <table class="w-full min-w-[600px]" :class="lang === 'fa' ? 'text-right' : 'text-left'">
+                        <thead class="bg-slate-100 text-slate-600 font-bold text-sm"><tr>
+                            <th class="p-4"><span x-show="lang === 'fa'">زمان</span><span x-show="lang === 'en'" x-cloak>Time</span></th>
+                            <th class="p-4"><span x-show="lang === 'fa'">کاربر</span><span x-show="lang === 'en'" x-cloak>User</span></th>
+                            <th class="p-4"><span x-show="lang === 'fa'">رویداد</span><span x-show="lang === 'en'" x-cloak>Event</span></th>
+                            <th class="p-4">IP</th>
+                        </tr></thead>
+                        <tbody class="divide-y divide-slate-100 bg-white font-medium text-sm">
+                            <tr><td class="p-4 text-slate-400"><span x-show="lang === 'fa'">۱۴:۲۲ - ۱۴۰۳/۰۶/۱۵</span><span x-show="lang === 'en'" x-cloak>14:22 - 2026/09/06</span></td><td class="p-4"><span x-show="lang === 'fa'">علی رضایی</span><span x-show="lang === 'en'" x-cloak>Ali Rezaei</span></td><td class="p-4"><span x-show="lang === 'fa'">ویرایش نقش کاربر #۴۴۲۱</span><span x-show="lang === 'en'" x-cloak>Edited user role #4421</span></td><td class="p-4 dir-ltr text-left">192.168.4.12</td></tr>
+                            <tr><td class="p-4 text-slate-400"><span x-show="lang === 'fa'">۱۳:۰۵ - ۱۴۰۳/۰۶/۱۵</span><span x-show="lang === 'en'" x-cloak>13:05 - 2026/09/06</span></td><td class="p-4"><span x-show="lang === 'fa'">سارا احمدی</span><span x-show="lang === 'en'" x-cloak>Sara Ahmadi</span></td><td class="p-4"><span x-show="lang === 'fa'">افزودن سازمان جدید</span><span x-show="lang === 'en'" x-cloak>Added new organization</span></td><td class="p-4 dir-ltr text-left">10.0.0.5</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-auto py-8 border-t border-white text-center text-slate-500 relative z-10 glass">
+        <div class="container mx-auto font-medium">
+            <p><span x-show="lang === 'fa'">&copy; 2026 پلتفرم SIVRAS. تمامی حقوق محفوظ است.</span><span x-show="lang === 'en'" x-cloak>&copy; 2026 SIVRAS Platform. All rights reserved.</span></p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            const teal='#14b8a6', blue='#3b82f6', indigo='#6366f1', rose='#f43f5e', amber='#f59e0b', slate='#64748b';
+            new Chart(document.getElementById('visitsTrendChart'), {
+                type:'line',
+                data:{labels:['Far/Apr','Ord/May','Kho/Jun','Tir/Jul','Mor/Aug','Sha/Sep'],
+                datasets:[{label:'Visits / ویزیت',data:[2100,2400,2650,2500,2900,3110],borderColor:teal,backgroundColor:'rgba(20,184,166,.12)',fill:true,tension:.4,pointRadius:3}]},
+                options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+            });
+            new Chart(document.getElementById('usersRoleChart'), {
+                type:'doughnut',
+                data:{labels:['Med-Rep','Doctor','Org-Rep','HQ Operator','Provincial Admin'],
+                datasets:[{data:[3120,8940,64,58,29],backgroundColor:[teal,rose,'#eab308',indigo,'#a855f7']}]},
+                options:{plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}}}
+            });
+            new Chart(document.getElementById('provinceBarChart'), {
+                type:'bar',
+                data:{labels:['Tehran','Isfahan','Khorasan R','Fars','East Azarbaijan','Khuzestan'],
+                datasets:[{label:'Reps / نمایندگان',data:[740,380,310,290,260,230],backgroundColor:blue,borderRadius:8}]},
+                options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+            });
+            new Chart(document.getElementById('financeChart'), {
+                type:'bar',
+                data:{labels:['Far/Apr','Ord/May','Kho/Jun','Tir/Jul','Mor/Aug','Sha/Sep'],
+                datasets:[{label:'Commission (M) / پورسانت (م)',data:[420,460,510,495,560,610],backgroundColor:amber,borderRadius:8}]},
+                options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+            });
+        });
+    </script>
+</body>
+</html>

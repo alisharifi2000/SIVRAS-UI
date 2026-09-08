@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html x-data="{ lang: 'fa' }" :lang="lang" :dir="lang === 'fa' ? 'rtl' : 'ltr'">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIVRAS - Provincial Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body{font-family:'IRANSans','Vazirmatn',sans-serif;background-color:#f8fafc;}
+        .glass{background:rgba(255,255,255,.75);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.5);}
+        [x-cloak]{display:none!important;}
+        .stat-count{font-variant-numeric:tabular-nums;}
+        ::-webkit-scrollbar{height:6px;width:6px;}
+        ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px;}
+        .star-row i{font-size:11px;}
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen relative overflow-x-hidden">
+    <div class="fixed top-0 left-0 w-[600px] h-[600px] bg-teal-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0"></div>
+    <div class="fixed bottom-0 right-0 w-[600px] h-[600px] bg-blue-200 rounded-full mix-blend-multiply filter blur-[120px] opacity-40 translate-x-1/2 translate-y-1/2 pointer-events-none z-0"></div>
+
+    <header class="glass shadow-sm w-full sticky top-0 z-50 border-b border-white">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600 tracking-tight">SIVRAS</h1>
+                <div class="hidden md:block w-px h-6 bg-slate-300 mx-2"></div>
+                <span class="hidden md:inline-block text-sm font-bold text-slate-500">
+                    <span x-show="lang === 'fa'">پلتفرم جامع مدیریت نمایندگان علمی</span>
+                    <span x-show="lang === 'en'" x-cloak>Comprehensive Med-Rep Platform</span>
+                </span>
+            </div>
+            <nav class="flex gap-3 items-center">
+                <button @click="lang = lang === 'fa' ? 'en' : 'fa'" class="flex items-center gap-2 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 transition-colors px-4 py-2 rounded-xl border border-teal-200 shadow-sm">
+                    <i class="fa-solid fa-language text-lg"></i>
+                    <span x-text="lang === 'fa' ? 'English' : 'فارسی'"></span>
+                </button>
+                <button class="relative text-slate-500 hover:text-slate-800 bg-white/60 w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">3</span>
+                </button>
+                <div class="flex items-center gap-2 bg-white/60 px-3 py-1.5 rounded-xl border border-slate-200">
+                    <img src="https://i.pravatar.cc/80?u=provadmin" class="w-8 h-8 rounded-lg object-cover">
+                    <span class="text-sm font-bold text-slate-700 hidden sm:inline">
+                        <span x-show="lang === 'fa'">رضا قاسمی</span><span x-show="lang === 'en'" x-cloak>Reza Ghasemi</span>
+                    </span>
+                </div>
+                <span class="text-sm font-bold text-purple-800 bg-purple-100 px-4 py-2 rounded-xl border border-purple-200 shadow-sm"><i class="fa-solid fa-map-location-dot mr-1 ml-1"></i> Provincial Admin</span>
+                <a href="index.html" class="text-red-500 hover:text-red-600 text-sm font-bold bg-white/50 px-4 py-2 rounded-xl border border-red-100 hover:bg-red-50 transition-colors">
+                    <i class="fa-solid fa-sign-out-alt"></i> <span x-show="lang === 'fa'">خروج</span><span x-show="lang === 'en'" x-cloak>Logout</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 relative z-10 flex-grow" x-data="{ activeTab: 'overview' }">
+        <div class="flex gap-6 flex-col md:flex-row">
+
+            <!-- ===== SIDEBAR ===== -->
+            <aside class="w-full md:w-64 glass rounded-[2rem] p-4 shadow-sm h-fit border border-white bg-white/60 md:sticky md:top-24">
+                <div class="text-center mb-4 pb-4 border-b border-slate-200">
+                    <div class="w-14 h-14 mx-auto bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center text-2xl mb-2"><i class="fa-solid fa-map"></i></div>
+                    <h3 class="font-black text-xl text-slate-800"><span x-show="lang==='fa'">استان تهران</span><span x-show="lang==='en'" x-cloak>Tehran Province</span></h3>
+                    <p class="text-xs font-bold text-slate-500 bg-slate-100 mt-2 px-2 py-1 rounded inline-block">PROV-TEH-01</p>
+                    <div class="flex justify-center gap-1 mt-2 text-[11px] font-bold text-emerald-600"><i class="fa-solid fa-circle text-[6px] mt-1.5"></i><span x-show="lang==='fa'">وضعیت: فعال</span><span x-show="lang==='en'" x-cloak>Status: Active</span></div>
+                </div>
+                <nav class="flex flex-col gap-1.5">
+                    <button @click="activeTab = 'overview'" :class="activeTab === 'overview' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-chart-pie w-5 text-center"></i> <span x-show="lang === 'fa'">نمای کلی استان</span><span x-show="lang === 'en'" x-cloak>Overview</span>
+                    </button>
+                    <button @click="activeTab = 'medreps'" :class="activeTab === 'medreps' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-briefcase-medical w-5 text-center"></i> <span x-show="lang === 'fa'">نمایندگان علمی</span><span x-show="lang === 'en'" x-cloak>Med-Reps</span>
+                    </button>
+                    <button @click="activeTab = 'doctors'" :class="activeTab === 'doctors' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-user-doctor w-5 text-center"></i> <span x-show="lang === 'fa'">پزشکان تحت پوشش</span><span x-show="lang === 'en'" x-cloak>Doctors</span>
+                    </button>
+                    <button @click="activeTab = 'products'" :class="activeTab === 'products' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-pills w-5 text-center"></i> <span x-show="lang === 'fa'">محصولات و ویزیت‌ها</span><span x-show="lang === 'en'" x-cloak>Products & Visits</span>
+                    </button>
+                    <button @click="activeTab = 'cities'" :class="activeTab === 'cities' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-city w-5 text-center"></i> <span x-show="lang === 'fa'">شهرستان‌ها</span><span x-show="lang === 'en'" x-cloak>Cities</span>
+                    </button>
+                    <button @click="activeTab = 'approvals'" :class="activeTab === 'approvals' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full relative" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-clipboard-check w-5 text-center"></i> <span x-show="lang === 'fa'">تاییدیه‌های استانی</span><span x-show="lang === 'en'" x-cloak>Provincial Approvals</span>
+                        <span class="absolute left-2 bg-amber-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center" :class="lang==='en' ? 'left-2' : 'right-2'" x-show="lang==='en'">7</span>
+                    </button>
+                    <button @click="activeTab = 'reports'" :class="activeTab === 'reports' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white'" class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all w-full" :class="lang === 'en' ? 'text-left' : 'text-right'">
+                        <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i> <span x-show="lang === 'fa'">گزارش‌های استان</span><span x-show="lang === 'en'" x-cloak>Reports</span>
+                    </button>
+                </nav>
+                <div class="mt-4 pt-4 border-t border-slate-200 text-center">
+                    <p class="text-[11px] font-bold text-slate-400"><span x-show="lang==='fa'">آخرین بروزرسانی: چند لحظه پیش</span><span x-show="lang==='en'" x-cloak>Last updated: moments ago</span></p>
+                </div>
+            </aside>
+
+            <div class="flex-1 space-y-6 min-w-0">
+
+                <!-- ===== OVERVIEW TAB ===== -->
+                <div x-show="activeTab === 'overview'">
+                    <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+                        <h2 class="text-2xl font-black text-slate-800"><span x-show="lang==='fa'">نمای کلی عملکرد استان تهران</span><span x-show="lang==='en'" x-cloak>Tehran Province Overview</span></h2>
+                        <span class="bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 text-xs font-bold"><i class="fa-solid fa-circle text-[6px] mr-1 ml-1"></i><span x-show="lang==='fa'">۱ از ۲۹ استان با بالاترین رشد</span><span x-show="lang==='en'" x-cloak>#1 of 29 provinces by growth</span></span>
+                    </div>
+
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <div class="flex justify-between items-start mb-2"><div class="w-11 h-11 bg-teal-100 rounded-2xl flex items-center justify-center text-teal-600"><i class="fa-solid fa-briefcase-medical"></i></div><span class="text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg"><i class="fa-solid fa-arrow-trend-up mr-1"></i><span x-show="lang==='fa'">۵.۳٪</span><span x-show="lang==='en'" x-cloak>5.3%</span></span></div>
+                            <div class="text-3xl font-black text-teal-600 stat-count"><span x-show="lang==='fa'">۷۴۰</span><span x-show="lang==='en'" x-cloak>740</span></div>
+                            <div class="text-slate-500 font-bold text-sm mt-1"><span x-show="lang==='fa'">نمایندگان فعال</span><span x-show="lang==='en'" x-cloak>Active Med-Reps</span></div>
+                        </div>
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <div class="flex justify-between items-start mb-2"><div class="w-11 h-11 bg-rose-100 rounded-2xl flex items-center justify-center text-rose-600"><i class="fa-solid fa-user-doctor"></i></div><span class="text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg"><i class="fa-solid fa-arrow-trend-up mr-1"></i><span x-show="lang==='fa'">۲.۱٪</span><span x-show="lang==='en'" x-cloak>2.1%</span></span></div>
+                            <div class="text-3xl font-black text-rose-600 stat-count"><span x-show="lang==='fa'">۱,۹۲۰</span><span x-show="lang==='en'" x-cloak>1,920</span></div>
+                            <div class="text-slate-500 font-bold text-sm mt-1"><span x-show="lang==='fa'">پزشکان تحت پوشش</span><span x-show="lang==='en'" x-cloak>Covered Doctors</span></div>
+                        </div>
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <div class="flex justify-between items-start mb-2"><div class="w-11 h-11 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600"><i class="fa-solid fa-route"></i></div><span class="text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg"><i class="fa-solid fa-arrow-trend-up mr-1"></i><span x-show="lang==='fa'">۸.۷٪</span><span x-show="lang==='en'" x-cloak>8.7%</span></span></div>
+                            <div class="text-3xl font-black text-blue-600 stat-count"><span x-show="lang==='fa'">۳,۱۱۰</span><span x-show="lang==='en'" x-cloak>3,110</span></div>
+                            <div class="text-slate-500 font-bold text-sm mt-1"><span x-show="lang==='fa'">ویزیت موفق این ماه</span><span x-show="lang==='en'" x-cloak>Confirmed Visits (Month)</span></div>
+                        </div>
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <div class="flex justify-between items-start mb-2"><div class="w-11 h-11 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600"><i class="fa-solid fa-hourglass-half"></i></div><span class="text-red-500 text-xs font-bold bg-red-50 px-2 py-1 rounded-lg"><span x-show="lang==='fa'">نیازمند بررسی</span><span x-show="lang==='en'" x-cloak>Needs review</span></span></div>
+                            <div class="text-3xl font-black text-amber-600 stat-count"><span x-show="lang==='fa'">۲۷</span><span x-show="lang==='en'" x-cloak>27</span></div>
+                            <div class="text-slate-500 font-bold text-sm mt-1"><span x-show="lang==='fa'">در انتظار تایید استانی</span><span x-show="lang==='en'" x-cloak>Pending Provincial Review</span></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
+                        <div class="lg:col-span-2 glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-extrabold text-slate-800"><span x-show="lang==='fa'">روند ویزیت‌های تاییدشده استان</span><span x-show="lang==='en'" x-cloak>Confirmed Visits Trend</span></h3>
+                                <span class="text-xs font-bold text-slate-400"><span x-show="lang==='fa'">۶ ماه اخیر</span><span x-show="lang==='en'" x-cloak>Last 6 months</span></span>
+                            </div>
+                            <canvas id="visitsTrendChart" height="110"></canvas>
+                        </div>
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <h3 class="font-extrabold text-slate-800 mb-4"><span x-show="lang==='fa'">وضعیت نمایندگان استان</span><span x-show="lang==='en'" x-cloak>Med-Rep Status</span></h3>
+                            <canvas id="repsStatusChart" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
+                        <div class="lg:col-span-2 glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <h3 class="font-extrabold text-slate-800 mb-4"><span x-show="lang==='fa'">نمایندگان به تفکیک شهرستان (۱۰ شهرستان برتر)</span><span x-show="lang==='en'" x-cloak>Med-Reps by City (Top 10)</span></h3>
+                            <canvas id="cityBarChart" height="120"></canvas>
+                        </div>
+                        <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <h3 class="font-extrabold text-slate-800 mb-4"><span x-show="lang==='fa'">فعالیت‌های اخیر استان</span><span x-show="lang==='en'" x-cloak>Recent Activity</span></h3>
+                            <div class="space-y-4 text-sm">
+                                <div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-check text-xs"></i></div><div><p class="font-bold text-slate-700"><span x-show="lang==='fa'">مصاحبه نماینده جدید تایید شد</span><span x-show="lang==='en'" x-cloak>New rep interview approved</span></p><p class="text-slate-400 text-xs"><span x-show="lang==='fa'">۱۰ دقیقه پیش · ری</span><span x-show="lang==='en'" x-cloak>10 mins ago · Rey</span></p></div></div>
+                                <div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-user-doctor text-xs"></i></div><div><p class="font-bold text-slate-700"><span x-show="lang==='fa'">پزشک جدید به شبکه اضافه شد</span><span x-show="lang==='en'" x-cloak>New doctor joined network</span></p><p class="text-slate-400 text-xs"><span x-show="lang==='fa'">۳۵ دقیقه پیش · شهرری</span><span x-show="lang==='en'" x-cloak>35 mins ago · Shahr-e Rey</span></p></div></div>
+                                <div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-triangle-exclamation text-xs"></i></div><div><p class="font-bold text-slate-700"><span x-show="lang==='fa'">۲ نماینده غیرفعال شدند (عدم فعالیت)</span><span x-show="lang==='en'" x-cloak>2 reps deactivated (inactivity)</span></p><p class="text-slate-400 text-xs"><span x-show="lang==='fa'">۲ ساعت پیش · ورامین</span><span x-show="lang==='en'" x-cloak>2 hours ago · Varamin</span></p></div></div>
+                                <div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-star text-xs"></i></div><div><p class="font-bold text-slate-700"><span x-show="lang==='fa'">نماینده برتر ماه معرفی شد</span><span x-show="lang==='en'" x-cloak>Top rep of the month selected</span></p><p class="text-slate-400 text-xs"><span x-show="lang==='fa'">۵ ساعت پیش · تهران</span><span x-show="lang==='en'" x-cloak>5 hours ago · Tehran</span></p></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-extrabold text-slate-800"><span x-show="lang==='fa'">برترین نمایندگان استان (این ماه)</span><span x-show="lang==='en'" x-cloak>Top Performing Med-Reps (This Month)</span></h3>
+                            <button @click="activeTab='medreps'" class="text-teal-600 text-xs font-bold hover:underline"><span x-show="lang==='fa'">مشاهده همه</span><span x-show="lang==='en'" x-cloak>View all</span></button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-white p-4 rounded-2xl border border-slate-100 flex items-center gap-3">
+                                <img src="https://i.pravatar.cc/80?u=top1" class="w-12 h-12 rounded-xl object-cover">
+                                <div class="flex-1"><div class="font-bold text-sm">حسین محمدی</div><div class="text-xs text-slate-400">منطقه ۳ - ونک</div><div class="flex items-center gap-1 mt-1 text-amber-500 star-row"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><span class="text-slate-400 text-[11px] mr-1">4.9</span></div></div>
+                                <span class="text-emerald-600 font-black text-lg">۱۲۸</span>
+                            </div>
+                            <div class="bg-white p-4 rounded-2xl border border-slate-100 flex items-center gap-3">
+                                <img src="https://i.pravatar.cc/80?u=top2" class="w-12 h-12 rounded-xl object-cover">
+                                <div class="flex-1"><div class="font-bold text-sm">نگار اسدی</div><div class="text-xs text-slate-400">منطقه ۶ - یوسف‌آباد</div><div class="flex items-center gap-1 mt-1 text-amber-500 star-row"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><span class="text-slate-400 text-[11px] mr-1">4.6</span></div></div>
+                                <span class="text-emerald-600 font-black text-lg">۱۱۴</span>
+                            </div>
+                            <div class="bg-white p-4 rounded-2xl border border-slate-100 flex items-center gap-3">
+                                <img src="https://i.pravatar.cc/80?u=top3" class="w-12 h-12 rounded-xl object-cover">
+                                <div class="flex-1"><div class="font-bold text-sm">کاوه رستمی</div><div class="text-xs text-slate-400">شهرری</div><div class="flex items-center gap-1 mt-1 text-amber-500 star-row"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><span class="text-slate-400 text-[11px] mr-1">4.5</span></div></div>
+                                <span class="text-emerald-600 font-black text-lg">۱۰۲</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== MED-REPS TAB ===== -->
+                <div x-show="activeTab === 'medreps'" x-cloak class="space-y-5">
+                    <div class="glass p-5 rounded-3xl shadow-sm border border-white bg-white/60 flex flex-wrap gap-3 justify-between items-center">
+                        <div class="flex gap-2 flex-wrap">
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute top-1/2 -translate-y-1/2 text-slate-400 text-sm" :class="lang === 'en' ? 'left-4' : 'right-4'"></i>
+                                <input type="text" :placeholder="lang === 'fa' ? 'جستجوی نام یا کد نماینده...' : 'Search name or rep code...'" class="border-2 border-slate-200 rounded-xl px-10 py-2.5 text-sm font-medium w-64 focus:border-teal-500 outline-none">
+                            </div>
+                            <select class="border-2 border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-600">
+                                <option x-text="lang === 'fa' ? 'همه شهرستان‌ها' : 'All cities'"></option>
+                                <option>تهران</option><option>ری</option><option>شهریار</option><option>ورامین</option><option>پردیس</option>
+                            </select>
+                            <select class="border-2 border-slate-200 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-600">
+                                <option x-text="lang === 'fa' ? 'همه وضعیت‌ها' : 'All statuses'"></option>
+                                <option x-text="lang === 'fa' ? 'فعال' : 'Active'"></option>
+                                <option x-text="lang === 'fa' ? 'در فرآیند مدارک' : 'In document process'"></option>
+                                <option x-text="lang === 'fa' ? 'در انتظار مصاحبه' : 'Awaiting interview'"></option>
+                                <option x-text="lang === 'fa' ? 'غیرفعال' : 'Inactive'"></option>
+                            </select>
+                        </div>
+                        <div class="text-xs font-bold text-slate-500"><span x-show="lang==='fa'">۷۴۰ نماینده در استان تهران</span><span x-show="lang==='en'" x-cloak>740 reps in Tehran province</span></div>
+                    </div>
+
+                    <div class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60">
+                        <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                            <table class="w-full min-w-[800px]" :class="lang === 'fa' ? 'text-right' : 'text-left'">
+                                <thead class="bg-slate-100 text-slate-600 font-bold text-sm">
+                                    <tr>
+                                        <th class="p-4"><span x-show="lang === 'fa'">نماینده</span><span x-show="lang === 'en'" x-cloak>Rep</span></th>
+                                        <th class="p-4"><span x-show="lang === 'fa'">شهرستان</span><span x-show="lang === 'en'" x-cloak>City</span></th>
+                                        <th class="p-4"><span x-show="lang === 'fa'">امتیاز</span><span x-show="lang === 'en'" x-cloak>Rating</span></th>
+                                        <th class="p-4"><span x-show="lang === 'fa'">ویزیت این ماه</span><span x-show="lang === 'en'" x-cloak>Visits (Month)</span></th>
+                                        <th class="p-4"><span x-show="lang === 'fa'">پزشکان تخصیصی</span><span x-show="lang === 'en'" x-cloak>Assigned Doctors</span></th>
+                                        <th class="p-4"><span x-show="lang === 'fa'">وضعیت</span><span x-show="lang === 'en'" x-cloak>Status</span></th>
+                                        <th class="p-4"><span x-show="lang === 'fa'">عملیات</span><span x-show="lang === 'en'" x-cloak>Actions</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 bg-white font-medium text-sm">
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-4 flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=mr1" class="w-9 h-9 rounded-lg object-cover"><div><div class="font-bold text-slate-800">حسین محمدی</div><div class="text-xs text-slate-400 dir-ltr text-left">0912***4521</div></div></td>
+                                        <td class="p-4 text-slate-500">ونک</td>
+                                        <td class="p-4"><span class="text-amber-500 font-bold"><i class="fa-solid fa-star text-xs"></i> 4.9</span></td>
+                                        <td class="p-4 font-bold text-blue-600">128</td>
+                                        <td class="p-4 text-slate-500">14</td>
+                                        <td class="p-4"><span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">فعال</span><span x-show="lang === 'en'" x-cloak>Active</span></span></td>
+                                        <td class="p-4 flex gap-2 text-slate-400"><button class="hover:text-blue-600"><i class="fa-solid fa-eye"></i></button><button class="hover:text-red-600"><i class="fa-solid fa-ban"></i></button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-4 flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=mr2" class="w-9 h-9 rounded-lg object-cover"><div><div class="font-bold text-slate-800">نگار اسدی</div><div class="text-xs text-slate-400 dir-ltr text-left">0935***9087</div></div></td>
+                                        <td class="p-4 text-slate-500">یوسف‌آباد</td>
+                                        <td class="p-4"><span class="text-amber-500 font-bold"><i class="fa-solid fa-star text-xs"></i> 4.6</span></td>
+                                        <td class="p-4 font-bold text-blue-600">114</td>
+                                        <td class="p-4 text-slate-500">11</td>
+                                        <td class="p-4"><span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">فعال</span><span x-show="lang === 'en'" x-cloak>Active</span></span></td>
+                                        <td class="p-4 flex gap-2 text-slate-400"><button class="hover:text-blue-600"><i class="fa-solid fa-eye"></i></button><button class="hover:text-red-600"><i class="fa-solid fa-ban"></i></button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-4 flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=mr3" class="w-9 h-9 rounded-lg object-cover"><div><div class="font-bold text-slate-800">کاوه رستمی</div><div class="text-xs text-slate-400 dir-ltr text-left">0919***2214</div></div></td>
+                                        <td class="p-4 text-slate-500">شهرری</td>
+                                        <td class="p-4"><span class="text-amber-500 font-bold"><i class="fa-solid fa-star text-xs"></i> 4.5</span></td>
+                                        <td class="p-4 font-bold text-blue-600">102</td>
+                                        <td class="p-4 text-slate-500">9</td>
+                                        <td class="p-4"><span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">فعال</span><span x-show="lang === 'en'" x-cloak>Active</span></span></td>
+                                        <td class="p-4 flex gap-2 text-slate-400"><button class="hover:text-blue-600"><i class="fa-solid fa-eye"></i></button><button class="hover:text-red-600"><i class="fa-solid fa-ban"></i></button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-4 flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=mr4" class="w-9 h-9 rounded-lg object-cover"><div><div class="font-bold text-slate-800">مریم کریمی</div><div class="text-xs text-slate-400 dir-ltr text-left">0938***7723</div></div></td>
+                                        <td class="p-4 text-slate-500">پردیس</td>
+                                        <td class="p-4 text-slate-300">—</td>
+                                        <td class="p-4 text-slate-400">0</td>
+                                        <td class="p-4 text-slate-400">0</td>
+                                        <td class="p-4"><span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">در فرآیند مدارک</span><span x-show="lang === 'en'" x-cloak>Doc process</span></span></td>
+                                        <td class="p-4 flex gap-2 text-slate-400"><button class="hover:text-blue-600"><i class="fa-solid fa-eye"></i></button><button class="hover:text-red-600"><i class="fa-solid fa-ban"></i></button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-4 flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=mr5" class="w-9 h-9 rounded-lg object-cover"><div><div class="font-bold text-slate-800">امیر توکلی</div><div class="text-xs text-slate-400 dir-ltr text-left">0901***5567</div></div></td>
+                                        <td class="p-4 text-slate-500">ورامین</td>
+                                        <td class="p-4 text-slate-300">—</td>
+                                        <td class="p-4 text-slate-400">0</td>
+                                        <td class="p-4 text-slate-400">0</td>
+                                        <td class="p-4"><span class="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">در انتظار مصاحبه</span><span x-show="lang === 'en'" x-cloak>Awaiting interview</span></span></td>
+                                        <td class="p-4 flex gap-2 text-slate-400"><button class="hover:text-blue-600"><i class="fa-solid fa-eye"></i></button><button class="hover:text-red-600"><i class="fa-solid fa-ban"></i></button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="p-4 flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=mr6" class="w-9 h-9 rounded-lg object-cover"><div><div class="font-bold text-slate-800">سینا فرهادی</div><div class="text-xs text-slate-400 dir-ltr text-left">0912***9981</div></div></td>
+                                        <td class="p-4 text-slate-500">شهریار</td>
+                                        <td class="p-4"><span class="text-amber-500 font-bold"><i class="fa-solid fa-star text-xs"></i> 3.2</span></td>
+                                        <td class="p-4 font-bold text-blue-600">18</td>
+                                        <td class="p-4 text-slate-500">6</td>
+                                        <td class="p-4"><span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-lg text-xs font-bold"><span x-show="lang === 'fa'">غیرفعال</span><span x-show="lang === 'en'" x-cloak>Inactive</span></span></td>
+                                        <td class="p-4 flex gap-2 text-slate-400"><button class="hover:text-blue-600"><i class="fa-solid fa-eye"></i></button><button class="hover:text-emerald-600"><i class="fa-solid fa-rotate-left"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="flex justify-between items-center mt-4 text-sm text-slate-500 font-bold">
+                            <span><span x-show="lang === 'fa'">نمایش ۱ تا ۶ از ۷۴۰ نماینده</span><span x-show="lang === 'en'" x-cloak>Showing 1 to 6 of 740 reps</span></span>
+                            <div class="flex gap-1">
+                                <button class="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50">‹</button>
+                                <button class="w-9 h-9 rounded-lg bg-slate-800 text-white">1</button>
+                                <button class="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50">2</button>
+                                <button class="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50">3</button>
+                                <button class="w-9 h-9 rounded-lg border border-slate-200 bg-white hover:bg-slate-50">›</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== DOCTORS TAB ===== -->
+                <div x-show="activeTab === 'doctors'" x-cloak class="space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 flex items-center gap-4">
+                            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-user-doctor"></i></div>
+                            <div><div class="text-2xl font-black">1,920</div><div class="text-xs font-bold text-slate-500"><span x-show="lang==='fa'">کل پزشکان تحت پوشش</span><span x-show="lang==='en'" x-cloak>Total covered doctors</span></div></div>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 flex items-center gap-4">
+                            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-calendar-check"></i></div>
+                            <div><div class="text-2xl font-black">312</div><div class="text-xs font-bold text-slate-500"><span x-show="lang==='fa'">ویزیت‌شده این هفته</span><span x-show="lang==='en'" x-cloak>Visited this week</span></div></div>
+                        </div>
+                        <div class="glass p-5 rounded-3xl border border-white bg-white/60 flex items-center gap-4">
+                            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-clock"></i></div>
+                            <div><div class="text-2xl font-black">64</div><div class="text-xs font-bold text-slate-500"><span x-show="lang==='fa'">بدون ویزیت &gt; ۳۰ روز</span><span x-show="lang==='en'" x-cloak>No visit &gt; 30 days</span></div></div>
+                        </div>
+                    </div>
+                    <div class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60 overflow-x-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-extrabold text-slate-800 text-lg"><span x-show="lang==='fa'">فهرست پزشکان استان</span><span x-show="lang==='en'" x-cloak>Province Doctor Directory</span></h3>
+                            <input type="text" :placeholder="lang === 'fa' ? 'جستجوی پزشک...' : 'Search doctor...'" class="border-2 border-slate-200 rounded-xl px-4 py-2 text-sm font-medium w-56 focus:border-teal-500 outline-none">
+                        </div>
+                        <table class="w-full min-w-[720px]" :class="lang === 'fa' ? 'text-right' : 'text-left'">
+                            <thead class="bg-slate-100 text-slate-600 font-bold text-sm"><tr>
+                                <th class="p-4"><span x-show="lang === 'fa'">پزشک</span><span x-show="lang === 'en'" x-cloak>Doctor</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">تخصص</span><span x-show="lang === 'en'" x-cloak>Specialty</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">شهرستان</span><span x-show="lang === 'en'" x-cloak>City</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">نمایندگان مرتبط</span><span x-show="lang === 'en'" x-cloak>Assigned Reps</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">آخرین ویزیت</span><span x-show="lang === 'en'" x-cloak>Last Visit</span></th>
+                            </tr></thead>
+                            <tbody class="divide-y divide-slate-100 bg-white font-medium text-sm">
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=doc1" class="w-9 h-9 rounded-lg object-cover">دکتر علیرضا محمدی</td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">قلب و عروق</span><span x-show="lang==='en'" x-cloak>Cardiology</span></td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">ونک</span><span x-show="lang==='en'" x-cloak>Vanak</span></td><td class="p-4">3</td><td class="p-4 text-emerald-600 font-bold"><span x-show="lang==='fa'">امروز</span><span x-show="lang==='en'" x-cloak>Today</span></td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=doc2" class="w-9 h-9 rounded-lg object-cover">دکتر شیرین ملکی</td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">داخلی</span><span x-show="lang==='en'" x-cloak>Internal Medicine</span></td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">یوسف‌آباد</span><span x-show="lang==='en'" x-cloak>Yousefabad</span></td><td class="p-4">2</td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">۲ روز پیش</span><span x-show="lang==='en'" x-cloak>2 days ago</span></td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=doc3" class="w-9 h-9 rounded-lg object-cover">دکتر حسین یزدانی</td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">غدد و متابولیسم</span><span x-show="lang==='en'" x-cloak>Endocrinology</span></td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">شهرری</span><span x-show="lang==='en'" x-cloak>Shahr-e Rey</span></td><td class="p-4">4</td><td class="p-4 text-amber-600 font-bold"><span x-show="lang==='fa'">۳۴ روز پیش</span><span x-show="lang==='en'" x-cloak>34 days ago</span></td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=doc4" class="w-9 h-9 rounded-lg object-cover">دکتر پریسا جلالی</td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">گوارش</span><span x-show="lang==='en'" x-cloak>Gastroenterology</span></td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">پردیس</span><span x-show="lang==='en'" x-cloak>Pardis</span></td><td class="p-4">1</td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">۵ روز پیش</span><span x-show="lang==='en'" x-cloak>5 days ago</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ===== PRODUCTS & VISITS TAB ===== -->
+                <div x-show="activeTab === 'products'" x-cloak class="space-y-5">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                        <div class="lg:col-span-1 glass p-6 rounded-3xl shadow-sm border border-white bg-white/60">
+                            <h3 class="font-extrabold text-slate-800 mb-4"><span x-show="lang==='fa'">سهم ویزیت به تفکیک محصول</span><span x-show="lang==='en'" x-cloak>Visit Share by Product</span></h3>
+                            <canvas id="productPieChart" height="220"></canvas>
+                        </div>
+                        <div class="lg:col-span-2 glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60 overflow-x-auto">
+                            <h3 class="font-extrabold text-slate-800 mb-4 text-lg"><span x-show="lang==='fa'">عملکرد محصولات در استان</span><span x-show="lang==='en'" x-cloak>Product Performance in Province</span></h3>
+                            <table class="w-full min-w-[560px]" :class="lang === 'fa' ? 'text-right' : 'text-left'">
+                                <thead class="bg-slate-100 text-slate-600 font-bold text-sm"><tr>
+                                    <th class="p-4"><span x-show="lang === 'fa'">نام دارو</span><span x-show="lang === 'en'" x-cloak>Drug</span></th>
+                                    <th class="p-4"><span x-show="lang === 'fa'">سازمان مالک</span><span x-show="lang === 'en'" x-cloak>Owner Org</span></th>
+                                    <th class="p-4"><span x-show="lang === 'fa'">ویزیت این ماه</span><span x-show="lang === 'en'" x-cloak>Visits (Month)</span></th>
+                                    <th class="p-4"><span x-show="lang === 'fa'">نمایندگان فعال</span><span x-show="lang === 'en'" x-cloak>Active Reps</span></th>
+                                </tr></thead>
+                                <tbody class="divide-y divide-slate-100 bg-white font-medium text-sm">
+                                    <tr class="hover:bg-slate-50"><td class="p-4 font-bold">کاردیوپلاس (Atorvastatin 20mg)</td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">داروسازی البرز</span><span x-show="lang==='en'" x-cloak>Alborz Pharma</span></td><td class="p-4 font-bold text-blue-600">890</td><td class="p-4 text-slate-500">210</td></tr>
+                                    <tr class="hover:bg-slate-50"><td class="p-4 font-bold">گلوکوفارم (Metformin 500mg)</td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">داروسازی البرز</span><span x-show="lang==='en'" x-cloak>Alborz Pharma</span></td><td class="p-4 font-bold text-blue-600">640</td><td class="p-4 text-slate-500">165</td></tr>
+                                    <tr class="hover:bg-slate-50"><td class="p-4 font-bold">لوزارکس (Losartan 50mg)</td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">سبحان دارو</span><span x-show="lang==='en'" x-cloak>Sobhan Darou</span></td><td class="p-4 font-bold text-blue-600">510</td><td class="p-4 text-slate-500">128</td></tr>
+                                    <tr class="hover:bg-slate-50"><td class="p-4 font-bold">پنتوپرازول سبحان ۴۰</td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">سبحان دارو</span><span x-show="lang==='en'" x-cloak>Sobhan Darou</span></td><td class="p-4 font-bold text-blue-600">380</td><td class="p-4 text-slate-500">94</td></tr>
+                                    <tr class="hover:bg-slate-50"><td class="p-4 font-bold">نوروزین کمپلکس (NeuroZin Complex)</td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">داروسازی البرز</span><span x-show="lang==='en'" x-cloak>Alborz Pharma</span></td><td class="p-4 font-bold text-blue-600">340</td><td class="p-4 text-slate-500">88</td></tr>
+                                    <tr class="hover:bg-slate-50"><td class="p-4 font-bold">ویتامکس پلاس (Vitamax Plus)</td><td class="p-4 text-slate-500"><span x-show="lang==='fa'">داروپخش</span><span x-show="lang==='en'" x-cloak>Daroupakhsh</span></td><td class="p-4 font-bold text-blue-600">350</td><td class="p-4 text-slate-500">96</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== CITIES TAB ===== -->
+                <div x-show="activeTab === 'cities'" x-cloak class="space-y-5">
+                    <div class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60 overflow-x-auto">
+                        <h3 class="font-extrabold text-slate-800 mb-4 text-lg"><span x-show="lang==='fa'">عملکرد به تفکیک شهرستان</span><span x-show="lang==='en'" x-cloak>Performance by City</span></h3>
+                        <table class="w-full min-w-[680px]" :class="lang === 'fa' ? 'text-right' : 'text-left'">
+                            <thead class="bg-slate-100 text-slate-600 font-bold text-sm"><tr>
+                                <th class="p-4"><span x-show="lang === 'fa'">شهرستان</span><span x-show="lang === 'en'" x-cloak>City</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">نمایندگان فعال</span><span x-show="lang === 'en'" x-cloak>Active Reps</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">پزشکان</span><span x-show="lang === 'en'" x-cloak>Doctors</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">ویزیت این ماه</span><span x-show="lang === 'en'" x-cloak>Visits (Month)</span></th>
+                                <th class="p-4"><span x-show="lang === 'fa'">رشد نسبت به ماه قبل</span><span x-show="lang === 'en'" x-cloak>MoM Growth</span></th>
+                            </tr></thead>
+                            <tbody class="divide-y divide-slate-100 bg-white font-medium text-sm">
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold"><span x-show="lang==='fa'">تهران (مرکز)</span><span x-show="lang==='en'" x-cloak>Tehran (Central)</span></td><td class="p-4">420</td><td class="p-4">1,180</td><td class="p-4 text-teal-600 font-bold">1,860</td><td class="p-4 text-emerald-600 font-bold"><i class="fa-solid fa-arrow-trend-up mr-1"></i>6.4%</td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold"><span x-show="lang==='fa'">شهرری</span><span x-show="lang==='en'" x-cloak>Shahr-e Rey</span></td><td class="p-4">96</td><td class="p-4">280</td><td class="p-4 text-teal-600 font-bold">410</td><td class="p-4 text-emerald-600 font-bold"><i class="fa-solid fa-arrow-trend-up mr-1"></i>3.1%</td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold"><span x-show="lang==='fa'">شهریار</span><span x-show="lang==='en'" x-cloak>Shahriar</span></td><td class="p-4">72</td><td class="p-4">195</td><td class="p-4 text-teal-600 font-bold">265</td><td class="p-4 text-red-500 font-bold"><i class="fa-solid fa-arrow-trend-down mr-1"></i>1.8%</td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold"><span x-show="lang==='fa'">ورامین</span><span x-show="lang==='en'" x-cloak>Varamin</span></td><td class="p-4">58</td><td class="p-4">140</td><td class="p-4 text-teal-600 font-bold">198</td><td class="p-4 text-emerald-600 font-bold"><i class="fa-solid fa-arrow-trend-up mr-1"></i>2.2%</td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold"><span x-show="lang==='fa'">پردیس</span><span x-show="lang==='en'" x-cloak>Pardis</span></td><td class="p-4">44</td><td class="p-4">75</td><td class="p-4 text-teal-600 font-bold">120</td><td class="p-4 text-emerald-600 font-bold"><i class="fa-solid fa-arrow-trend-up mr-1"></i>9.6%</td></tr>
+                                <tr class="hover:bg-slate-50"><td class="p-4 font-bold"><span x-show="lang==='fa'">اسلامشهر</span><span x-show="lang==='en'" x-cloak>Eslamshahr</span></td><td class="p-4">50</td><td class="p-4">50</td><td class="p-4 text-teal-600 font-bold">257</td><td class="p-4 text-emerald-600 font-bold"><i class="fa-solid fa-arrow-trend-up mr-1"></i>4.0%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ===== PROVINCIAL APPROVALS TAB ===== -->
+                <div x-show="activeTab === 'approvals'" x-cloak class="space-y-5">
+                    <div class="glass p-5 rounded-3xl border border-white bg-white/40">
+                        <p class="text-sm text-slate-500 font-medium leading-relaxed"><i class="fa-solid fa-circle-info text-blue-500 mr-2 ml-2"></i><span x-show="lang==='fa'">این کارتابل شامل مواردی است که نیاز به تایید نهایی ادمین استانی دارند: تخصیص نماینده به منطقه، درخواست تغییر شهرستان و بازبینی گزارش عدم فعالیت.</span><span x-show="lang==='en'" x-cloak>This queue includes items needing final provincial-admin sign-off: rep-to-region assignment, city transfer requests, and inactivity review.</span></p>
+                    </div>
+                    <div class="glass p-6 rounded-[2rem] shadow-sm border border-white bg-white/60 space-y-3">
+                        <div class="bg-white p-4 rounded-xl border border-slate-100 flex flex-wrap justify-between items-center gap-3">
+                            <div class="flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=ap1" class="w-10 h-10 rounded-lg object-cover"><div><div class="font-bold">امیر توکلی <span class="text-amber-500 text-xs font-bold bg-amber-50 px-2 py-0.5 rounded mr-1"><span x-show="lang==='fa'">تخصیص منطقه</span><span x-show="lang==='en'" x-cloak>Region Assignment</span></span></div><div class="text-xs text-slate-400"><span x-show="lang==='fa'">درخواست تخصیص به منطقه ورامین - آماده ورود به فاز پزشکان</span><span x-show="lang==='en'" x-cloak>Requesting Varamin region assignment - ready for doctor phase</span></div></div></div>
+                            <div class="flex gap-2"><button class="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-lg text-sm font-bold"><span x-show="lang==='fa'">تایید</span><span x-show="lang==='en'" x-cloak>Approve</span></button><button class="bg-red-50 text-red-500 px-4 py-2 rounded-lg text-sm font-bold"><span x-show="lang==='fa'">رد</span><span x-show="lang==='en'" x-cloak>Reject</span></button></div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-100 flex flex-wrap justify-between items-center gap-3">
+                            <div class="flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=ap2" class="w-10 h-10 rounded-lg object-cover"><div><div class="font-bold">سینا فرهادی <span class="text-red-500 text-xs font-bold bg-red-50 px-2 py-0.5 rounded mr-1"><span x-show="lang==='fa'">بازبینی عدم فعالیت</span><span x-show="lang==='en'" x-cloak>Inactivity Review</span></span></div><div class="text-xs text-slate-400"><span x-show="lang==='fa'">۴۲ روز بدون ویزیت موفق - نیاز به تصمیم</span><span x-show="lang==='en'" x-cloak>42 days without a confirmed visit - decision required</span></div></div></div>
+                            <div class="flex gap-2"><button class="bg-blue-50 text-blue-600 px-4 py-2 rounded-lg text-sm font-bold"><span x-show="lang==='fa'">مشاهده پرونده</span><span x-show="lang==='en'" x-cloak>View File</span></button></div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-100 flex flex-wrap justify-between items-center gap-3">
+                            <div class="flex items-center gap-3"><img src="https://i.pravatar.cc/80?u=ap3" class="w-10 h-10 rounded-lg object-cover"><div><div class="font-bold">مریم کریمی <span class="text-blue-500 text-xs font-bold bg-blue-50 px-2 py-0.5 rounded mr-1"><span x-show="lang==='fa'">تغییر شهرستان</span><span x-show="lang==='en'" x-cloak>City Transfer</span></span></div><div class="text-xs text-slate-400"><span x-show="lang==='fa'">درخواست انتقال از اصفهان به پردیس</span><span x-show="lang==='en'" x-cloak>Requesting transfer from Isfahan to Pardis</span></div></div></div>
+                            <div class="flex gap-2"><button class="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-lg text-sm font-bold"><span x-show="lang==='fa'">تایید</span><span x-show="lang==='en'" x-cloak>Approve</span></button><button class="bg-red-50 text-red-500 px-4 py-2 rounded-lg text-sm font-bold"><span x-show="lang==='fa'">رد</span><span x-show="lang==='en'" x-cloak>Reject</span></button></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== REPORTS TAB ===== -->
+                <div x-show="activeTab === 'reports'" x-cloak class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="glass p-6 rounded-3xl border border-white bg-white/60">
+                        <h3 class="font-extrabold text-slate-800 mb-4"><span x-show="lang==='fa'">روند مالی نمایندگان استان (تجمیعی)</span><span x-show="lang==='en'" x-cloak>Province Rep Commission Trend</span></h3>
+                        <canvas id="financeChart" height="180"></canvas>
+                    </div>
+                    <div class="glass p-6 rounded-3xl border border-white bg-white/60 space-y-4">
+                        <h3 class="font-extrabold text-slate-800 mb-2"><span x-show="lang === 'fa'">گزارش‌های آماده استان</span><span x-show="lang === 'en'" x-cloak>Ready Province Reports</span></h3>
+                        <div class="flex justify-between items-center p-4 bg-white rounded-2xl border border-slate-100"><span class="font-bold text-sm text-slate-600"><i class="fa-solid fa-file-pdf text-red-400 mr-2 ml-2"></i><span x-show="lang === 'fa'">گزارش عملکرد نمایندگان استان - شهریور</span><span x-show="lang === 'en'" x-cloak>Provincial Rep Performance - Sep</span></span><button class="text-teal-600 font-bold text-sm"><span x-show="lang === 'fa'">دانلود</span><span x-show="lang === 'en'" x-cloak>Download</span></button></div>
+                        <div class="flex justify-between items-center p-4 bg-white rounded-2xl border border-slate-100"><span class="font-bold text-sm text-slate-600"><i class="fa-solid fa-file-excel text-emerald-500 mr-2 ml-2"></i><span x-show="lang === 'fa'">پوشش پزشکان به تفکیک شهرستان</span><span x-show="lang === 'en'" x-cloak>Doctor Coverage by City</span></span><button class="text-teal-600 font-bold text-sm"><span x-show="lang === 'fa'">دانلود</span><span x-show="lang === 'en'" x-cloak>Download</span></button></div>
+                        <div class="flex justify-between items-center p-4 bg-white rounded-2xl border border-slate-100"><span class="font-bold text-sm text-slate-600"><i class="fa-solid fa-file-pdf text-red-400 mr-2 ml-2"></i><span x-show="lang === 'fa'">گزارش نمایندگان غیرفعال</span><span x-show="lang === 'en'" x-cloak>Inactive Reps Report</span></span><button class="text-teal-600 font-bold text-sm"><span x-show="lang === 'fa'">دانلود</span><span x-show="lang === 'en'" x-cloak>Download</span></button></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-auto py-8 border-t border-white text-center text-slate-500 relative z-10 glass">
+        <div class="container mx-auto font-medium">
+            <p><span x-show="lang === 'fa'">&copy; 2026 پلتفرم SIVRAS. تمامی حقوق محفوظ است.</span><span x-show="lang === 'en'" x-cloak>&copy; 2026 SIVRAS Platform. All rights reserved.</span></p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            const teal='#14b8a6', blue='#3b82f6', indigo='#6366f1', rose='#f43f5e', amber='#f59e0b', purple='#a855f7', slate='#64748b';
+            new Chart(document.getElementById('visitsTrendChart'), {
+                type:'line',
+                data:{labels:['Far/Apr','Ord/May','Kho/Jun','Tir/Jul','Mor/Aug','Sha/Sep'],
+                datasets:[{label:'Visits',data:[2380,2560,2710,2690,2940,3110],borderColor:teal,backgroundColor:'rgba(20,184,166,.12)',fill:true,tension:.4,pointRadius:3}]},
+                options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+            });
+            new Chart(document.getElementById('repsStatusChart'), {
+                type:'doughnut',
+                data:{labels:['Active','Doc Process','Awaiting Interview','Inactive'],
+                datasets:[{data:[740,62,18,35],backgroundColor:[teal,amber,blue,'#ef4444']}]},
+                options:{plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10}}}}}
+            });
+            new Chart(document.getElementById('cityBarChart'), {
+                type:'bar',
+                data:{labels:['Tehran','Shahr-e Rey','Shahriar','Varamin','Eslamshahr','Pardis','Damavand'],
+                datasets:[{label:'Reps',data:[420,96,72,58,50,44,30],backgroundColor:blue,borderRadius:8}]},
+                options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+            });
+            new Chart(document.getElementById('productPieChart'), {
+                type:'pie',
+                data:{labels:['Cardioxyl','GlucoPharm','LosarX','Pantoprazole Sobhan','NeuroZin','Vitamax Plus'],
+                datasets:[{data:[890,640,510,380,340,350],backgroundColor:[teal,blue,indigo,rose,amber,purple]}]},
+                options:{plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:9}}}}}
+            });
+            new Chart(document.getElementById('financeChart'), {
+                type:'bar',
+                data:{labels:['Far/Apr','Ord/May','Kho/Jun','Tir/Jul','Mor/Aug','Sha/Sep'],
+                datasets:[{label:'Commission (M Toman)',data:[210,225,248,240,265,289],backgroundColor:amber,borderRadius:8}]},
+                options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+            });
+        });
+    </script>
+</body>
+</html>
